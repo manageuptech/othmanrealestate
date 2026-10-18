@@ -1,0 +1,15 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Explorer from '../../components/Explorer.astro';
+import { getProperties, propertyUrl } from '../../lib/data';
+const items = await getProperties();
+const ld = [{ '@context': 'https://schema.org', '@type': 'ItemList', name: 'العروض العقارية - العثمان العقارية', itemListElement: items.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: new URL(propertyUrl(p), Astro.site).href, name: p.data.title })) }];
+---
+<Base title="عقارات للبيع والإيجار في الخبر والدمام | العثمان العقارية" description="تصفح العروض العقارية المتاحة لدى العثمان العقارية: شقق وفلل وأراضٍ وعمائر وعقارات تجارية للبيع والإيجار في الخبر والدمام والمنطقة الشرقية، مع البحث حسب المدينة والحي ونوع العقار." jsonld={ld}>
+  <PageHero eyebrow="العروض العقارية" title="عقارات للبيع والإيجار" lead="ابحث حسب المدينة والحي ونوع العقار، وتواصل مباشرة مع فريق المبيعات عن أي عرض." crumbs={[{ name: 'العقارات' }]} />
+  <section class="wrap" style="padding-bottom:clamp(80px,10vw,140px)">
+    <h2 class="sr-only">نتائج البحث</h2>
+    <Explorer items={items} syncUrl />
+  </section>
+</Base>

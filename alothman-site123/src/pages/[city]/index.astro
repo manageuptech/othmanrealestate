@@ -1,0 +1,109 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Explorer from '../../components/Explorer.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import TypeArt from '../../components/TypeArt.astro';
+import { CITIES, TYPES, SITE, getProperties, districtUrl, cityTypeUrl, isNoindex, waLink } from '../../lib/data';
+import { dname, dshort } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const all = await getProperties();
+  return CITIES.map((c) => ({ params: { city: c.slug }, props: { c, items: all.filter((p) => p.data.city === c.slug) } }));
+}
+const { c, items } = Astro.props;
+const path = `/${c.slug}/`;
+const featuredD = c.districts.filter((d) => d.featured);
+const linkedD = c.districts.filter((d) => !isNoindex(districtUrl(c.slug, d.slug)));
+const count = (k: string, s?: string) => items.filter((p) => p.data.type === k && (!s || p.data.status === s)).length;
+const faqs = c.primary ? [
+  { q: `كيف أجد عقارًا للبيع أو الإيجار في ${c.name}؟`, a: `تصفح العروض المتاحة في ${c.name} في هذه الصفحة، وصفِّها حسب الحي ونوع العقار. وإذا لم تجد ما يناسبك، أرسل طلبك لفريق العثمان العقارية عبر واتساب على ${SITE.phoneDisplay} وسنرسل لك الخيارات المناسبة.` },
+  { q: `ما أنواع العقارات التي تعرضونها في ${c.name}؟`, a: 'نعرض الشقق والفلل والأراضي والعمائر والعقارات التجارية، للبيع والإيجار، بحسب العروض المتاحة لدينا وقت تواصلك.' },
+  { q: `هل تقدمون خدمة إدارة الأملاك وتأجير العقارات في ${c.name}؟`, a: 'نعم، نقدم إدارة كاملة للعقار تشمل الصيانة والتحصيل والتقارير الدورية، والبحث عن مستأجرين مناسبين وإعداد العقود ومتابعة الدفعات.' },
+  { q: `أملك عقارًا في ${c.name}، هل يمكنكم تسويقه؟`, a: 'نعم، نتولى تسويق العقارات السكنية والتجارية: التصوير والنشر والتفاوض حتى إتمام البيع أو التأجير، مع تقييم العقار بناءً على السوق والموقع.' },
+  { q: 'أين يقع مكتب العثمان العقارية؟', a: `مكتبنا في ${SITE.address.line}، ${SITE.address.city}.` },
+] : [];
+const title = c.primary ? `عقارات ${c.name} للبيع والإيجار | شقق وفلل وأراضٍ - العثمان العقارية` : `عقارات للبيع في ${c.name} | العثمان العقارية`;
+const desc = c.primary ? `شقق وفلل وأراضٍ وعمائر وعقارات تجارية للبيع والإيجار في ${c.name} وأحيائها مثل ${featuredD.map((d) => dshort(d.name)).join(' و')}. تصفح عروض العثمان العقارية وتواصل معنا.` : `${c.intro} تواصل مع العثمان العقارية على ${SITE.phoneDisplay}.`;
+---
+<Base title={title} description={desc} noindex={isNoindex(path)}>
+  <PageHero eyebrow={c.nameEn} title={`عقارات ${c.name} للبيع والإيجار`} lead={c.intro} crumbs={[{ name: `عقارات ${c.name}` }]}>
+    <div class="cstats" data-reveal>
+      <span><b class="latin">{items.length}</b> {items.length === 1 ? 'عرض متاح' : 'عروض متاحة'}</span>
+      <span><b class="latin">{c.districts.length}</b> {c.districts.length === 1 ? 'حي' : 'حيًّا نغطيها'}</span>
+      <a class="btn btn--wa btn--sm" href={waLink(`السلام عليكم، أبحث عن عقار في ${c.name}`)} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} />اطلب عقارًا في {c.name}</a>
+    </div>
+  </PageHero>
+
+  {c.primary && (
+    <section class="wrap ctypes" aria-label="أنواع العقارات">
+      {TYPES.map((t) => {
+        const sale = cityTypeUrl(c.slug, t.slug, 'sale'), rent = cityTypeUrl(c.slug, t.slug, 'rent');
+        return (
+          <div class="ctype" data-reveal>
+            <TypeArt type={t.key} class="ctype__art" />
+            <h2 class="ctype__n">{t.plural}</h2>
+            <div class="ctype__l">
+              <a href={isNoindex(sale) ? `/properties/?city=${c.slug}&type=${t.key}&status=sale` : sale}>{t.name} للبيع في {c.name} <span>{count(t.key, 'sale')}</span></a>
+              <a href={isNoindex(rent) ? `/properties/?city=${c.slug}&type=${t.key}&status=rent` : rent}>{t.name} للإيجار في {c.name} <span>{count(t.key, 'rent')}</span></a>
+            </div>
+          </div>
+        );
+      })}
+    </section>
+  )}
+
+  <section class="wrap" style="padding-block:clamp(60px,8vw,110px)" aria-labelledby="list-h">
+    <h2 class="h-lg" id="list-h" data-split style="margin-bottom:30px">العروض المتاحة في {c.name}</h2>
+    <Explorer items={items} preset={{ city: c.slug }} showFilters={items.length > 3} />
+  </section>
+
+  {c.primary && (
+    <section class="section section--ivory" aria-labelledby="dist-h">
+      <div class="wrap">
+        <span class="eyebrow">أحياء {c.name}</span>
+        <h2 class="h-xl" id="dist-h" data-split style="margin:12px 0 40px">ابحث حسب الحي</h2>
+        <div class="dcards">
+          {featuredD.map((d, i) => (
+            <a class="dcard" href={districtUrl(c.slug, d.slug)} data-reveal style={`--d:${i * .08}s`} data-cursor="استكشف">
+              <span class="dcard__n">{dname(d.name)}</span>
+              <span class="dcard__t">{d.intro.split('،')[0]}.</span>
+              <span class="link-arrow">عقارات {dname(dshort(d.name))} <Icon name="arrow" size={18} /></span>
+            </a>
+          ))}
+        </div>
+        <ul class="dlist" role="list">
+          {c.districts.filter((d) => !d.featured).map((d) => {
+            const u = districtUrl(c.slug, d.slug);
+            return <li><a href={isNoindex(u) ? `/properties/?city=${c.slug}&district=${d.slug}` : u}>{dname(d.name)}</a></li>;
+          })}
+        </ul>
+        <div style="margin-top:clamp(70px,9vw,120px)"><Faq items={faqs} title={`أسئلة عن العقارات في ${c.name}`} /></div>
+      </div>
+    </section>
+  )}
+</Base>
+<style>
+  .cstats { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 34px; margin-top: 34px; color: var(--on-dark-soft); }
+  .cstats b { font-size: 40px; color: var(--gold); font-weight: 500; margin-inline-end: 6px; }
+  .ctypes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .ctype { position: relative; padding: 22px; border-radius: var(--radius); border: 1px solid var(--line-dark); background: var(--navy-800); overflow: hidden; display: grid; gap: 12px; }
+  :global(.ctype__art) { width: 90px; color: var(--gold); }
+  .ctype__n { font-size: 24px; font-weight: 300; }
+  .ctype__l { display: grid; gap: 4px; }
+  .ctype__l a { display: flex; justify-content: space-between; gap: 8px; font-size: 14.5px; color: var(--on-dark-soft); padding: 6px 0; border-top: 1px solid var(--line-dark); transition: color .3s; }
+  .ctype__l a:hover { color: var(--gold-2); }
+  .ctype__l span { font-family: var(--f-latin); color: var(--gold); }
+  @media (max-width: 1100px) { .ctypes { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 680px) { .ctypes { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 420px) { .ctypes { grid-template-columns: 1fr; } }
+  .dcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+  .dcard { display: grid; gap: 12px; padding: 30px; border-radius: var(--radius); background: var(--navy); color: var(--ivory); min-height: 260px; align-content: space-between; transition: transform .6s var(--ease), background .5s; }
+  .dcard:hover { transform: translateY(-6px); background: var(--navy-700); }
+  .dcard__n { font-family: var(--f-display); font-size: 34px; font-weight: 300; }
+  .dcard__t { color: var(--on-dark-soft); font-size: 15px; }
+  .dlist { list-style: none; padding: 0; margin: 34px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .dlist a { display: inline-flex; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line-light); background: #fff; transition: background .3s, color .3s; }
+  .dlist a:hover { background: var(--navy); color: var(--ivory); }
+</style>

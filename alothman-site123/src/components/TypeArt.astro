@@ -1,0 +1,39 @@
+---
+// Architectural line drawings for each property type (gold on navy).
+// Paths carry pathLength=1 so they can be "drawn" with CSS/GSAP.
+interface Props { type: string; class?: string }
+const { type, class: cls = '' } = Astro.props;
+const ART: Record<string, string> = {
+  apartment: `
+    <path d="M60 330V70h150v260"/><path d="M210 330V120h110v210"/>
+    <path d="M85 100h30v30H85zM155 100h30v30h-30zM85 160h30v30H85zM155 160h30v30h-30zM85 220h30v30H85zM155 220h30v30h-30z"/>
+    <path d="M235 150h25v25h-25zM280 150h25v25h-25zM235 205h25v25h-25zM280 205h25v25h-25zM235 260h25v25h-25zM280 260h25v25h-25z"/>
+    <path d="M115 330v-45h40v45M40 330h300"/><path d="M60 70l75-30 75 30"/>`,
+  villa: `
+    <path d="M30 330h320"/><path d="M50 330V190l110-80 110 80v140"/><path d="M270 330V230h60v100"/>
+    <path d="M30 205L160 110 290 205"/><path d="M135 330v-70h50v70"/>
+    <path d="M80 220h40v35H80zM200 220h40v35h-40zM285 255h30v30h-30z"/><path d="M148 165a12 12 0 0 1 24 0v18h-24z"/>
+    <path d="M335 330c0-40 8-70 0-95M345 245c-14-4-24 2-26 10M335 270c10-6 18-4 20 4"/>`,
+  land: `
+    <path d="M20 300L120 250 360 270 270 330 30 330z"/><path d="M120 250v-60M360 270v-60M30 330v-55M270 330v-60"/>
+    <path d="M120 190l10 6M360 210l10 6M30 275l10 6M270 270l10 6"/>
+    <path d="M60 300l80 6M100 285l150 10M180 320l70-30" stroke-dasharray="0.02 0.02"/>
+    <path d="M300 120a26 26 0 1 0 0.1 0"/><path d="M300 70v14M300 168v14M248 120h14M338 120h14"/>`,
+  building: `
+    <path d="M90 330V60h200v270M60 330h260"/><path d="M90 60l100-25 100 25"/>
+    <path d="M115 90h30v25h-30zM175 90h30v25h-30zM235 90h30v25h-30zM115 135h30v25h-30zM175 135h30v25h-30zM235 135h30v25h-30zM115 180h30v25h-30zM175 180h30v25h-30zM235 180h30v25h-30zM115 225h30v25h-30zM235 225h30v25h-30z"/>
+    <path d="M165 330v-70h50v70M190 260v70"/>`,
+  commercial: `
+    <path d="M30 330h320M50 330V150h280v180"/><path d="M40 150l20-50h260l20 50"/>
+    <path d="M60 100l-20 50M100 100l-10 50M140 100l-5 50M180 100v50M220 100l5 50M260 100l10 50M300 100l20 50"/>
+    <path d="M40 150a20 20 0 0 0 40 0 20 20 0 0 0 40 0 20 20 0 0 0 40 0 20 20 0 0 0 40 0 20 20 0 0 0 40 0 20 20 0 0 0 40 0 20 20 0 0 0 40 0"/>
+    <path d="M75 200h110v130H75zM210 200h95v80h-95zM130 200v130"/><path d="M150 70h80v30h-80z"/>`,
+  resthouse: `
+    <path d="M20 330h340M40 330V200h300v130"/><path d="M40 200h300M40 215h300"/>
+    <path d="M80 330V255l55-35 55 35v75"/><path d="M115 330v-40h40v40"/>
+    <path d="M220 330v-60h90v60M235 270v-25h60v25"/><path d="M245 295h20v20h-20zM275 295h20v20h-20z"/>
+    <path d="M330 200c0-50 6-80 0-115M330 85c-22-6-40 2-44 16M330 85c20-10 38-4 42 10M330 95c-12 8-18 22-14 34M330 95c14 6 20 18 18 30"/>`,
+};
+const body = (ART[type] ?? ART.building).replace(/<path /g, '<path pathLength="1" ');
+---
+<svg class={`type-art ${cls}`} viewBox="0 0 380 360" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={body} />

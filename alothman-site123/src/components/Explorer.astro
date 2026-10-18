@@ -1,0 +1,111 @@
+---
+// Listings grid with live filtering (city, district, type, status, keyword, sort).
+// All cards are in the HTML (good for SEO); JS only hides/sorts them.
+import Icon from './Icon.astro';
+import PropertyCard from './PropertyCard.astro';
+import { CITIES, TYPES, type Property, waLink } from '../lib/data';
+interface Props { items: Property[]; preset?: { city?: string; district?: string; type?: string; status?: string }; syncUrl?: boolean; showFilters?: boolean; emptyText?: string }
+const { items, preset = {}, syncUrl = false, showFilters = true, emptyText = 'لا توجد عروض منشورة حاليًا تطابق اختيارك.' } = Astro.props;
+const districts = Object.fromEntries(CITIES.map((c) => [c.slug, c.districts.map((d) => [d.slug, d.name])]));
+const lockCity = !!preset.city && !syncUrl;
+---
+<div class="ex" data-ex data-sync={syncUrl ? '1' : undefined} data-preset={JSON.stringify(preset)}>
+  {showFilters && (
+    <form class="ex__bar" role="search" aria-label="تصفية العقارات" onsubmit="return false">
+      <div class="ex__q"><Icon name="search" size={18} /><input type="search" name="q" placeholder="ابحث بالاسم، الحي، أو رقم العرض" aria-label="بحث" /></div>
+      <select class="input" name="status" aria-label="البيع أو الإيجار"><option value="">بيع وإيجار</option><option value="sale">للبيع</option><option value="rent">للإيجار</option></select>
+      {!lockCity && <select class="input" name="city" aria-label="المدينة"><option value="">كل المدن</option>{CITIES.map((c) => <option value={c.slug}>{c.name}</option>)}</select>}
+      {!preset.district && <select class="input" name="district" aria-label="الحي"><option value="">كل الأحياء</option></select>}
+      <select class="input" name="type" aria-label="نوع العقار"><option value="">كل الأنواع</option>{TYPES.map((t) => <option value={t.key}>{t.plural}</option>)}</select>
+      <select class="input" name="sort" aria-label="الترتيب"><option value="new">الأحدث</option><option value="price-asc">السعر: الأقل</option><option value="price-desc">السعر: الأعلى</option><option value="area-desc">المساحة: الأكبر</option></select>
+    </form>
+  )}
+  <div class="ex__meta"><span><b data-count-out>{items.length}</b> عقار</span><button type="button" class="ex__reset" data-reset hidden>مسح التصفية</button></div>
+  <div class="pgrid" data-grid>
+    {items.map((p, i) => <PropertyCard p={p} eager={i < 3} delay={(i % 3) * 0.08} />)}
+  </div>
+  <div class="ex__empty" data-empty hidden={items.length > 0}>
+    <Icon name="search" size={34} />
+    <p>{emptyText}<br />أخبرنا بما تبحث عنه وسنرسل لك العروض المناسبة فور توفرها.</p>
+    <a class="btn btn--wa" href={waLink('السلام عليكم، أبحث عن عقار ولم أجد ما يناسبني في الموقع')} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} />اطلب عقارك عبر واتساب</a>
+  </div>
+  <script type="application/json" data-districts set:html={JSON.stringify(districts)} />
+</div>
+<style>
+  .ex__bar { display: grid; grid-template-columns: 2fr repeat(5, 1fr); gap: 8px; padding: 8px; border-radius: 22px; background: var(--navy-800); border: 1px solid var(--line-dark); position: sticky; top: calc(var(--header-h) + 10px); z-index: 20; box-shadow: 0 30px 60px -40px rgba(0, 0, 0, .8); transition: top .5s var(--ease); }
+  :global(.hdr.is-hidden) ~ main .ex__bar { top: 10px; }
+  .ex__bar :global(.input) { min-height: 50px; font-size: 15px; }
+  .ex__q { display: flex; align-items: center; gap: 10px; padding-inline: 16px; border-radius: 14px; background: rgba(255, 246, 229, .06); border: 1px solid rgba(255, 246, 229, .18); color: var(--gold); }
+  .ex__q input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--ivory); height: 48px; }
+  .ex__q:focus-within { border-color: var(--gold); }
+  .ex__meta { display: flex; justify-content: space-between; align-items: center; margin: 26px 0 20px; color: var(--on-dark-soft); }
+  .ex__meta b { color: var(--gold); font-size: 20px; font-family: var(--f-latin); }
+  .ex__reset { color: var(--gold); text-decoration: underline; text-underline-offset: 4px; }
+  .ex__empty { text-align: center; padding: 60px 20px; border: 1px dashed var(--line-dark); border-radius: var(--radius); display: grid; justify-items: center; gap: 14px; color: var(--on-dark-soft); }
+  .ex__empty .icon { color: var(--gold); }
+  .pcard.is-hidden { display: none; }
+  @media (max-width: 1100px) { .ex__bar { grid-template-columns: 1fr 1fr 1fr; } .ex__q { grid-column: 1 / -1; } }
+  @media (max-width: 560px) { .ex__bar { grid-template-columns: 1fr 1fr; position: static; } }
+</style>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-ex]').forEach((ex) => {
+    const preset = JSON.parse(ex.dataset.preset || '{}');
+    const sync = !!ex.dataset.sync;
+    const form = ex.querySelector<HTMLFormElement>('.ex__bar');
+    const grid = ex.querySelector<HTMLElement>('[data-grid]')!;
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.pcard'));
+    const out = ex.querySelector('[data-count-out]')!;
+    const empty = ex.querySelector<HTMLElement>('[data-empty]')!;
+    const reset = ex.querySelector<HTMLButtonElement>('[data-reset]')!;
+    const districts = JSON.parse(ex.querySelector('[data-districts]')!.textContent || '{}');
+    const f = (n: string) => form?.querySelector<HTMLInputElement | HTMLSelectElement>(`[name=${n}]`);
+
+    const fillDistricts = () => {
+      const d = f('district'); if (!d) return;
+      const city = f('city')?.value || preset.city || '';
+      const keep = d.value;
+      d.innerHTML = '<option value="">كل الأحياء</option>' + (districts[city] || []).map(([s, n]: string[]) => `<option value="${s}">${n}</option>`).join('');
+      d.value = (districts[city] || []).some(([s]: string[]) => s === keep) ? keep : '';
+      (d as HTMLSelectElement).disabled = !city;
+    };
+
+    if (sync) {
+      const qs = new URLSearchParams(location.search);
+      ['q', 'status', 'city', 'type', 'sort'].forEach((k) => { const el = f(k); if (el && qs.get(k)) el.value = qs.get(k)!; });
+      fillDistricts();
+      const d = f('district'); if (d && qs.get('district')) d.value = qs.get('district')!;
+    } else fillDistricts();
+
+    const apply = () => {
+      const v = (k: string) => (f(k)?.value ?? '') || preset[k] || '';
+      const q = (f('q')?.value || '').trim().toLowerCase();
+      let n = 0;
+      cards.forEach((c) => {
+        const ok = (!v('status') || c.dataset.status === v('status')) && (!v('city') || c.dataset.city === v('city')) && (!v('district') || c.dataset.district === v('district')) && (!v('type') || c.dataset.type === v('type')) && (!q || (c.dataset.text || '').toLowerCase().includes(q) || (c.querySelector('.pcard__ref')?.textContent || '').toLowerCase().includes(q));
+        c.classList.toggle('is-hidden', !ok);
+        if (ok) { n++; c.classList.add('is-in'); }
+      });
+      const s = f('sort')?.value || 'new';
+      const num = (c: HTMLElement, k: string, dflt: number) => (c.dataset[k] ? +c.dataset[k]! : dflt);
+      const sorted = [...cards].sort((a, b) =>
+        s === 'price-asc' ? num(a, 'price', Infinity) - num(b, 'price', Infinity)
+        : s === 'price-desc' ? num(b, 'price', -1) - num(a, 'price', -1)
+        : s === 'area-desc' ? num(b, 'area', -1) - num(a, 'area', -1)
+        : num(b, 'date', 0) - num(a, 'date', 0));
+      sorted.forEach((c) => grid.appendChild(c));
+      out.textContent = String(n);
+      empty.hidden = n > 0;
+      const active = form ? Array.from(form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[name]')).some((el) => el.name !== 'sort' && el.value) : false;
+      reset.hidden = !active;
+      if (sync) {
+        const p = new URLSearchParams();
+        form?.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[name]').forEach((el) => { if (el.value && !(el.name === 'sort' && el.value === 'new')) p.set(el.name, el.value); });
+        history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p : ''));
+      }
+    };
+    form?.addEventListener('input', (e) => { if ((e.target as HTMLElement).getAttribute('name') === 'city') fillDistricts(); apply(); });
+    form?.addEventListener('change', apply);
+    reset.addEventListener('click', () => { form?.reset(); fillDistricts(); apply(); });
+    apply();
+  });
+</script>

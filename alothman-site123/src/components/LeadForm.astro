@@ -1,0 +1,47 @@
+---
+import Icon from './Icon.astro';
+import { SITE, PRIMARY_CITIES, TYPES } from '../lib/data';
+interface Props { title?: string; intent?: string; property?: string; dark?: boolean; id?: string }
+const { title = 'اطلب عقارك الآن', intent = '', property = '', id = 'lead' } = Astro.props;
+---
+<form class="lead-f" name="lead" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-lead={property ? `استفسار عن عقار: ${property}` : 'طلب عقاري جديد من الموقع'} data-wa={SITE.whatsapp} id={id}>
+  <input type="hidden" name="form-name" value="lead" />
+  {property && <input type="hidden" name="_property" value={property} />}
+  <p hidden><label>لا تملأ هذا الحقل <input name="bot-field" /></label></p>
+  <h3 class="lead-f__t">{title}</h3>
+  <p class="lead-f__s">يصلك ردّ فريق المبيعات على واتساب.</p>
+  <div class="lead-f__grid">
+    <div class="field"><label for={`${id}-name`}>الاسم *</label><input class="input" id={`${id}-name`} name="name" required autocomplete="name" placeholder="اسمك الكريم" /></div>
+    <div class="field"><label for={`${id}-phone`}>رقم الجوال *</label><input class="input" id={`${id}-phone`} name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="05xxxxxxxx" pattern="[0-9+\s]{9,15}" dir="ltr" style="text-align:right" /></div>
+    <div class="field"><label for={`${id}-need`}>الطلب</label>
+      <select class="input" id={`${id}-need`} name="need">
+        {['شراء', 'استئجار', 'بيع عقاري', 'تأجير عقاري', 'إدارة أملاك', 'تقييم عقار', 'استشارة'].map((o) => <option selected={o === intent}>{o}</option>)}
+      </select>
+    </div>
+    <div class="field"><label for={`${id}-city`}>المدينة</label>
+      <select class="input" id={`${id}-city`} name="city">
+        {PRIMARY_CITIES.map((c) => <option>{c.name}</option>)}<option>أخرى</option>
+      </select>
+    </div>
+    <div class="field lead-f__wide"><label for={`${id}-type`}>نوع العقار</label>
+      <select class="input" id={`${id}-type`} name="type">
+        <option value="">غير محدد</option>
+        {TYPES.map((t) => <option>{t.single}</option>)}
+      </select>
+    </div>
+    <div class="field lead-f__wide"><label for={`${id}-msg`}>تفاصيل إضافية</label><textarea class="input" id={`${id}-msg`} name="message" rows="3" placeholder="الحي المفضل، الميزانية، عدد الغرف..."></textarea></div>
+  </div>
+  <button class="btn btn--wa btn--block" type="submit"><Icon name="whatsapp" size={20} />إرسال عبر واتساب</button>
+  <p class="lead-f__ok" role="status"><Icon name="check" size={18} />فتحنا لك واتساب برسالتك جاهزة، اضغط إرسال وسيتواصل معك الفريق.</p>
+</form>
+<style>
+  .lead-f { padding: clamp(22px, 3vw, 38px); border-radius: var(--radius); background: var(--navy); color: var(--ivory); box-shadow: 0 50px 100px -50px rgba(20, 34, 56, .7); }
+  .lead-f__t { font-size: 26px; font-weight: 500; }
+  .lead-f__s { color: var(--on-dark-soft); font-size: 15px; margin: 4px 0 22px; }
+  .lead-f__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .lead-f__wide { grid-column: 1 / -1; }
+  .lead-f :global(.input) { background: rgba(255, 246, 229, .06); border-color: rgba(255, 246, 229, .18); color: var(--ivory); }
+  .lead-f__ok { display: none; align-items: center; gap: 8px; margin: 14px 0 0; color: var(--gold-2); font-size: 14.5px; }
+  .lead-f.is-sent .lead-f__ok { display: flex; }
+  @media (max-width: 520px) { .lead-f__grid { grid-template-columns: 1fr; } }
+</style>

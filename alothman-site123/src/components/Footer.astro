@@ -1,0 +1,59 @@
+---
+import Icon from './Icon.astro';
+import { SITE, PRIMARY_CITIES, TYPES, cityTypeUrl, districtUrl, waLink, isNoindex } from '../lib/data';
+const year = new Date().getFullYear();
+const khobar = PRIMARY_CITIES.find((c) => c.slug === 'khobar')!;
+const dammam = PRIMARY_CITIES.find((c) => c.slug === 'dammam')!;
+const featured = (c: typeof khobar) => c.districts.filter((d) => !isNoindex(districtUrl(c.slug, d.slug)));
+---
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div>
+        <a href="/" class="brand" style="margin-bottom:22px"><img src="/brand/logo-mark.png" alt="العثمان العقارية" width="54" height="54" loading="lazy" /><span class="brand__txt"><span class="brand__ar">{SITE.nameAr}</span><span class="brand__en">Al Othman Real Estate</span></span></a>
+        <p class="muted" style="max-width:38ch;font-size:15px">{SITE.legalNameAr}. بيع وتأجير وإدارة العقارات السكنية والتجارية في الخبر والدمام والمنطقة الشرقية.</p>
+        <address class="ftr__nap">
+          <span><Icon name="pin" size={18} />{SITE.address.line}، {SITE.address.city}، {SITE.address.region}</span>
+          <a href={`tel:${SITE.phone}`}><Icon name="phone" size={18} /><span dir="ltr">{SITE.phoneDisplay}</span></a>
+          <a href={waLink('السلام عليكم')} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} />واتساب المبيعات</a>
+          {SITE.email && <a href={`mailto:${SITE.email}`}><Icon name="mail" size={18} />{SITE.email}</a>}
+        </address>
+      </div>
+      <div>
+        <h3>عقارات الخبر</h3>
+        <ul>
+          <li><a href="/khobar/">جميع عقارات الخبر</a></li>
+          {TYPES.slice(0, 3).map((t) => <li><a href={cityTypeUrl('khobar', t.slug, 'sale')}>{t.name} للبيع في الخبر</a></li>)}
+          {featured(khobar).map((d) => <li><a href={districtUrl('khobar', d.slug)}>عقارات حي {d.name}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <h3>عقارات الدمام</h3>
+        <ul>
+          <li><a href="/dammam/">جميع عقارات الدمام</a></li>
+          {TYPES.slice(0, 3).map((t) => <li><a href={cityTypeUrl('dammam', t.slug, 'sale')}>{t.name} للبيع في الدمام</a></li>)}
+          {featured(dammam).map((d) => <li><a href={districtUrl('dammam', d.slug)}>عقارات {d.name.startsWith('ضاحية') ? d.name : 'حي ' + d.name}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <h3>الشركة</h3>
+        <ul>
+          <li><a href="/properties/">العروض العقارية</a></li>
+          <li><a href="/services/">خدماتنا</a></li>
+          <li><a href="/services/#s1">إدارة الأملاك</a></li>
+          <li><a href="/list-your-property/">اعرض عقارك معنا</a></li>
+          <li><a href="/about/">من نحن</a></li>
+          <li><a href="/contact/">تواصل معنا</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr__big" aria-hidden="true">العثمان العقارية</div>
+    <div class="ftr__bottom">
+      <span>© {year} {SITE.legalNameAr}. جميع الحقوق محفوظة.</span>
+      <span>
+        {SITE.falLicense && <>رخصة فال: {SITE.falLicense} · </>}
+        {SITE.crNumber && <>س.ت: {SITE.crNumber}</>}
+      </span>
+    </div>
+  </div>
+</footer>

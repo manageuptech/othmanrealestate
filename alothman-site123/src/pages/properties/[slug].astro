@@ -1,0 +1,237 @@
+---
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import Icon from '../../components/Icon.astro';
+import TypeArt from '../../components/TypeArt.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { render } from 'astro:content';
+import { getProperties, cityOf, districtOf, typeByKey, STATUS, placeLabel, priceLabel, propertyUrl, propertyWa, facts, SITE, districtUrl, cityUrl, cityTypeUrl, isNoindex, fmt } from '../../lib/data';
+
+export async function getStaticPaths() {
+  const all = await getProperties();
+  return all.map((p) => ({ params: { slug: p.id }, props: { p, all } }));
+}
+const { p, all } = Astro.props;
+const d = p.data;
+const { Content } = await render(p);
+const city = cityOf(d.city);
+const dist = districtOf(d.city, d.district);
+const type = typeByKey(d.type);
+const photos = [...new Set([d.cover, ...d.images].filter(Boolean))] as string[];
+const F = facts(p);
+const similar = all.filter((x) => x.id !== p.id).sort((a, b) => (+(b.data.city === d.city) + +(b.data.type === d.type)) - (+(a.data.city === d.city) + +(a.data.type === d.type))).slice(0, 3);
+const distHref = districtUrl(d.city, d.district);
+const typeHref = city.primary ? cityTypeUrl(d.city, type.slug, d.status) : null;
+const mapQ = encodeURIComponent(`${dist ? 'حي ' + dist.name.replace(/\s*\(.*\)/, '') + ' ' : ''}${city.name} السعودية`);
+
+const schemaType: Record<string, string> = { apartment: 'Apartment', villa: 'SingleFamilyResidence', land: 'Place', building: 'ApartmentComplex', commercial: 'Place', resthouse: 'House' };
+const url = new URL(propertyUrl(p), Astro.site).href;
+const ld = [{
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateListing',
+  name: d.title, description: d.summary, url, datePosted: d.date.toISOString().slice(0, 10),
+  ...(photos.length ? { image: photos } : {}),
+  offers: { '@type': 'Offer', businessFunction: d.status === 'sale' ? 'http://purl.org/goodrelations/v1#Sell' : 'http://purl.org/goodrelations/v1#LeaseOut', availability: 'https://schema.org/InStock', ...(d.price ? { price: d.price, priceCurrency: 'SAR' } : {}), seller: { '@id': 'https://alothman.com.sa/#org' } },
+  about: {
+    '@type': schemaType[d.type],
+    name: d.title,
+    address: { '@type': 'PostalAddress', ...(d.street ? { streetAddress: d.street } : {}), addressLocality: city.name, addressRegion: 'المنطقة الشرقية', addressCountry: 'SA' },
+    ...(d.area ? { floorSize: { '@type': 'QuantitativeValue', value: d.area, unitCode: 'MTK' } } : {}),
+    ...(d.bedrooms ? { numberOfBedrooms: d.bedrooms } : {}),
+    ...(d.bathrooms ? { numberOfBathroomsTotal: d.bathrooms } : {}),
+  },
+}];
+const title = `${d.title}${d.ref ? ` | ${d.ref}` : ''} | العثمان العقارية`;
+const desc = `${d.summary} ${priceLabel(p)}. تواصل مع العثمان العقارية: ${SITE.phoneDisplay}`;
+---
+<Base title={title} description={desc} image={d.cover || undefined} jsonld={ld} type="article" solidHeader>
+  <article class="pd">
+    <div class="wrap pd__top">
+      <Crumbs items={[{ name: 'العقارات', href: '/properties/' }, { name: city.name, href: cityUrl(city.slug) }, ...(dist && !isNoindex(distHref) ? [{ name: dist.name, href: distHref }] : []), { name: d.title }]} />
+      <div class="pd__head">
+        <div>
+          <div class="pd__chips"><span class="chip chip--gold">{STATUS[d.status]}</span><span class="chip">{type.single}</span>{d.ref && <span class="chip latin">{d.ref}</span>}</div>
+          <h1 class="h-lg pd__title rise">{d.title}</h1>
+          <p class="pd__place"><Icon name="pin" size={18} />{placeLabel(p)}{d.street && <>، {d.street}</>}</p>
+        </div>
+        <div class="pd__price"><span>السعر</span><strong>{priceLabel(p)}</strong></div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class:list={['gal', { 'gal--single': photos.length <= 1 }]} data-gallery>
+        <button type="button" class="gal__main" data-media data-open="0" data-cursor="تكبير" aria-label="عرض الصور بحجم كامل" data-reveal="clip">
+          <div class="ph"><TypeArt type={d.type} /><span class="ph__note">{photos.length ? 'جارٍ تحميل الصورة' : 'الصور عند الطلب'}</span></div>
+          {photos[0] && <img data-photo src={photos[0]} alt={d.title} width="1600" height="1000" fetchpriority="high" />}
+          {photos.length > 1 && <span class="gal__count chip chip--glass"><Icon name="grid" size={14} />{photos.length} صور</span>}
+        </button>
+        {photos.length > 1 && (
+          <div class="gal__thumbs">
+            {photos.slice(1, 5).map((src, i) => (
+              <button type="button" class="gal__th" data-media data-open={i + 1} aria-label={`الصورة ${i + 2}`}>
+                <div class="ph"><TypeArt type={d.type} /></div><img data-photo src={src} alt="" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div class="wrap pd__body">
+      <div class="pd__main">
+        {F.length > 0 && (
+          <section aria-labelledby="facts-h">
+            <h2 class="pd__h" id="facts-h">تفاصيل العقار</h2>
+            <dl class="facts">
+              <div><dt><Icon name="building" size={20} />النوع</dt><dd>{type.single}</dd></div>
+              <div><dt><Icon name="key" size={20} />العرض</dt><dd>{STATUS[d.status]}</dd></div>
+              {F.map((f) => <div><dt><Icon name={f.icon} size={20} />{f.k}</dt><dd>{f.v}</dd></div>)}
+            </dl>
+          </section>
+        )}
+        <section aria-labelledby="desc-h">
+          <h2 class="pd__h" id="desc-h">الوصف</h2>
+          <div class="prose"><Content /></div>
+        </section>
+        {d.features.length > 0 && (
+          <section aria-labelledby="feat-h">
+            <h2 class="pd__h" id="feat-h">المميزات</h2>
+            <ul class="feats" role="list">{d.features.map((f) => <li><Icon name="check" size={18} />{f}</li>)}</ul>
+          </section>
+        )}
+        <section aria-labelledby="loc-h">
+          <h2 class="pd__h" id="loc-h">الموقع</h2>
+          <p class="muted">{placeLabel(p)}{d.street && <>، {d.street}</>}. {d.mapUrl ? '' : 'الموقع الدقيق يُرسل عند ترتيب المعاينة.'}</p>
+          {d.mapUrl && <a class="btn" href={d.mapUrl} target="_blank" rel="noopener" style="margin-top:6px"><Icon name="pin" size={18} />افتح الموقع في خرائط Google</a>}
+          <div class="map" data-map={`https://maps.google.com/maps?q=${mapQ}&z=13&output=embed`}>
+            <button type="button" class="btn btn--ghost" data-map-load><Icon name="pin" size={18} />عرض الحي على الخريطة</button>
+          </div>
+          <div class="pd__links">
+            {dist && !isNoindex(distHref) && <a class="link-arrow" href={distHref}>عقارات أخرى في {dist.name.startsWith('ضاحية') ? dist.name : 'حي ' + dist.name} <Icon name="arrow" size={18} /></a>}
+            {typeHref && !isNoindex(typeHref) && <a class="link-arrow" href={typeHref}>{type.name} {STATUS[d.status]} في {city.name} <Icon name="arrow" size={18} /></a>}
+            <a class="link-arrow" href={cityUrl(city.slug)}>كل عقارات {city.name} <Icon name="arrow" size={18} /></a>
+          </div>
+        </section>
+      </div>
+
+      <aside class="pd__aside">
+        <div class="agent">
+          <span class="eyebrow">مهتم بهذا العقار؟</span>
+          <strong class="agent__price">{priceLabel(p)}</strong>
+          <p class="muted" style="font-size:15px">تواصل مع فريق مبيعات العثمان العقارية للاستفسار أو ترتيب موعد معاينة.</p>
+          <a class="btn btn--wa btn--block" href={propertyWa(p)} target="_blank" rel="noopener"><Icon name="whatsapp" size={20} />استفسر عبر واتساب</a>
+          <a class="btn btn--block" href={`tel:${SITE.phone}`}><Icon name="phone" size={18} />اتصل <span dir="ltr">{SITE.phoneDisplay}</span></a>
+          <button type="button" class="btn btn--ghost btn--block" data-share><Icon name="share" size={18} /><span>مشاركة العقار</span></button>
+        </div>
+      </aside>
+    </div>
+
+    <section class="section section--ivory" aria-labelledby="book-h">
+      <div class="wrap pd__book">
+        <div>
+          <span class="eyebrow">احجز معاينة</span>
+          <h2 class="h-lg" id="book-h" data-split>رتّب موعد معاينة لهذا العقار</h2>
+          <p class="lead">اترك بياناتك ونرتب لك الموعد المناسب ونجيب عن كل أسئلتك.</p>
+        </div>
+        <LeadForm title="طلب معاينة" property={`${d.title}${d.ref ? ` (${d.ref})` : ''}`} intent={d.status === 'sale' ? 'شراء' : 'استئجار'} id="book" />
+      </div>
+    </section>
+
+    {similar.length > 0 && (
+      <section class="section" aria-labelledby="sim-h">
+        <div class="wrap">
+          <h2 class="h-lg" id="sim-h" data-split style="margin-bottom:40px">عقارات مشابهة</h2>
+          <div class="pgrid">{similar.map((s, i) => <PropertyCard p={s} delay={i * 0.08} />)}</div>
+        </div>
+      </section>
+    )}
+  </article>
+
+  <dialog class="lb" data-lb aria-label="معرض الصور">
+    <button type="button" class="lb__x" data-lb-close aria-label="إغلاق"><Icon name="close" size={24} /></button>
+    <button type="button" class="lb__nav lb__prev" data-lb-prev aria-label="السابقة"><Icon name="arrow" size={24} /></button>
+    <img alt="" data-lb-img />
+    <button type="button" class="lb__nav lb__next" data-lb-next aria-label="التالية"><Icon name="arrow" size={24} /></button>
+    <span class="lb__n latin" data-lb-n></span>
+    <script type="application/json" data-photos set:html={JSON.stringify(photos)} />
+  </dialog>
+</Base>
+
+<style>
+  .pd__top { padding-top: calc(var(--header-h) + 36px); }
+  .pd__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin: 26px 0 30px; }
+  .pd__chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pd__chips .chip:not(.chip--gold) { color: var(--on-dark-soft); }
+  .pd__title { margin: 16px 0 10px; max-width: 30ch; }
+  .pd__place { display: flex; align-items: center; gap: 8px; color: var(--gold); margin: 0; }
+  .pd__price { text-align: start; display: grid; }
+  .pd__price span { font-size: 14px; color: var(--on-dark-mute); }
+  .pd__price strong { font-family: var(--f-display); font-weight: 500; font-size: clamp(22px, 2.4vw, 32px); }
+
+  .gal { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; height: clamp(320px, 62vh, 640px); }
+  .gal--single { grid-template-columns: 1fr; }
+  .gal__main, .gal__th { position: relative; overflow: hidden; border-radius: var(--radius); background: var(--navy-700); width: 100%; height: 100%; }
+  .gal__main img, .gal__th img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--ease); }
+  .gal__main:hover img, .gal__th:hover img { transform: scale(1.05); }
+  .gal__main.is-missing img, .gal__th.is-missing img { display: none; }
+  .gal__main .ph :global(.type-art) { width: min(42%, 340px); max-height: 70%; }
+  .gal__th .ph :global(.type-art) { width: 50%; }
+  .gal__count { position: absolute; bottom: 16px; inset-inline-start: 16px; }
+  .gal__thumbs { display: grid; gap: 12px; grid-auto-rows: 1fr; }
+  @media (max-width: 760px) { .gal { grid-template-columns: 1fr; height: auto; } .gal__main { aspect-ratio: 4/3; } .gal__thumbs { grid-template-columns: repeat(4, 1fr); } .gal__th { aspect-ratio: 1; } }
+
+  .pd__body { display: grid; grid-template-columns: 1fr 380px; gap: clamp(30px, 5vw, 80px); padding-block: clamp(50px, 6vw, 90px); align-items: start; }
+  .pd__main { display: grid; gap: 54px; min-width: 0; }
+  .pd__h { font-size: 24px; margin-bottom: 20px; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 0; }
+  .facts div { padding: 18px; border-radius: var(--radius-sm); background: var(--navy-800); border: 1px solid var(--line-dark); }
+  .facts dt { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--on-dark-mute); }
+  .facts dt .icon { color: var(--gold); }
+  .facts dd { margin: 6px 0 0; font-size: 20px; font-weight: 600; }
+  .feats { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .feats li { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line-dark); }
+  .feats .icon { color: var(--gold); }
+  .map { margin-top: 16px; aspect-ratio: 16/8; border-radius: var(--radius); overflow: hidden; display: grid; place-items: center; background: linear-gradient(135deg, var(--navy-700), var(--navy-900)); border: 1px solid var(--line-dark); }
+  .map iframe { width: 100%; height: 100%; border: 0; filter: grayscale(.4) contrast(1.05); }
+  .pd__links { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 22px; }
+  .pd__aside { position: sticky; top: calc(var(--header-h) + 20px); }
+  .agent { display: grid; gap: 12px; padding: 28px; border-radius: var(--radius); background: linear-gradient(160deg, var(--navy-700), var(--navy-800)); border: 1px solid rgba(195, 148, 45, .35); box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .7); }
+  .agent__price { font-family: var(--f-display); font-size: 26px; font-weight: 500; }
+  .pd__book { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 100px); align-items: start; }
+  .pd__book h2 { margin: 14px 0 16px; }
+  @media (max-width: 960px) { .pd__body, .pd__book { grid-template-columns: 1fr; } .pd__aside { position: static; } }
+
+  .lb { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(7, 13, 24, .96); color: var(--ivory); }
+  .lb[open] { display: grid; place-items: center; }
+  .lb::backdrop { background: transparent; }
+  .lb img { max-width: 92vw; max-height: 86vh; object-fit: contain; border-radius: 12px; }
+  .lb__x { position: absolute; top: 20px; left: 20px; width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line-dark); display: grid; place-items: center; }
+  .lb__nav { position: absolute; top: 50%; width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--line-dark); display: grid; place-items: center; transform: translateY(-50%); }
+  .lb__prev { right: 20px; transform: translateY(-50%) scaleX(-1); }
+  .lb__next { left: 20px; }
+  .lb__n { position: absolute; bottom: 24px; font-size: 20px; color: var(--gold); }
+</style>
+<script>
+  const lb = document.querySelector<HTMLDialogElement>('[data-lb]');
+  if (lb) {
+    const photos: string[] = JSON.parse(lb.querySelector('[data-photos]')!.textContent || '[]');
+    const img = lb.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const n = lb.querySelector('[data-lb-n]')!;
+    let i = 0;
+    const show = (k: number) => { i = (k + photos.length) % photos.length; img.src = photos[i]; n.textContent = `${i + 1} / ${photos.length}`; };
+    document.querySelectorAll<HTMLElement>('[data-open]').forEach((b) => b.addEventListener('click', () => {
+      if (!photos.length || b.classList.contains('is-missing')) return;
+      show(+b.dataset.open!); lb.showModal(); (window as any).__lenis?.stop();
+    }));
+    lb.addEventListener('close', () => (window as any).__lenis?.start());
+    lb.querySelector('[data-lb-close]')!.addEventListener('click', () => lb.close());
+    lb.querySelector('[data-lb-prev]')!.addEventListener('click', () => show(i - 1));
+    lb.querySelector('[data-lb-next]')!.addEventListener('click', () => show(i + 1));
+    lb.querySelectorAll<HTMLElement>('.lb__nav').forEach((b) => (b.hidden = photos.length < 2));
+    lb.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') show(i + 1); if (e.key === 'ArrowRight') show(i - 1); });
+  }
+  document.querySelectorAll<HTMLElement>('[data-map]').forEach((m) => m.querySelector('[data-map-load]')?.addEventListener('click', () => {
+    m.innerHTML = `<iframe src="${m.dataset.map}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="خريطة الموقع"></iframe>`;
+  }));
+</script>

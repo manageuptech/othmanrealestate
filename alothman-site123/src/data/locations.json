@@ -1,0 +1,295 @@
+{
+  "cities": [
+    {
+      "slug": "khobar",
+      "name": "الخبر",
+      "nameEn": "Al Khobar",
+      "primary": true,
+      "intro": "الخبر من أكثر مدن المنطقة الشرقية طلبًا على السكن والاستثمار العقاري. في العثمان العقارية نعرض لك الشقق والفلل والأراضي والعمائر والعقارات التجارية المتاحة في أحياء الخبر، ونرافقك من البحث والمعاينة حتى إتمام الصفقة.",
+      "districts": [
+        {
+          "slug": "al-hamra",
+          "name": "الحمراء",
+          "featured": true,
+          "intro": "حي الحمراء في الخبر من الأحياء السكنية التي يكثر فيها طلب العائلات على الشقق والفلل، سواء للتملك أو للإيجار. نساعدك في العثمان العقارية على مقارنة العروض المتاحة في الحي من حيث المساحة وعدد الغرف وعمر البناء وحالة التشطيب، ونرتب لك المعاينة ونتابع الإجراءات حتى توقيع العقد ونقل الملكية. وإذا كنت مالكًا في الحمراء، نتولى تسويق عقارك وتصويره وعرضه على المهتمين، أو إدارته وتأجيره نيابة عنك."
+        },
+        {
+          "slug": "al-sawari",
+          "name": "الصواري",
+          "featured": true,
+          "intro": "حي الصواري من الأحياء التي يبحث فيها كثير من عملائنا عن فلل وشقق وأراضٍ سكنية في الخبر. لأن قرار الشراء في حي بعينه يعتمد على تفاصيل دقيقة، نوفر لك في العثمان العقارية قراءة واضحة للعروض المتاحة، ونقارن بين الخيارات من حيث المساحة والواجهة وعرض الشارع والتشطيب، ونرافقك في المعاينة والتفاوض وإنهاء الإجراءات النظامية. ولملاك العقارات في الصواري نقدم خدمات التسويق والتقييم وإدارة الأملاك."
+        },
+        {
+          "slug": "al-amwaj",
+          "name": "الأمواج",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-durrah",
+          "name": "الدرة",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-bandariyah",
+          "name": "البندرية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-olaya",
+          "name": "العليا",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "ar-rakah-ash-shamaliyah",
+          "name": "الراكة الشمالية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "ar-rakah-al-janubiyah",
+          "name": "الراكة الجنوبية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "ath-thuqbah",
+          "name": "الثقبة",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-yarmouk",
+          "name": "اليرموك",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-aqrabiyah",
+          "name": "العقربية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-khuzama",
+          "name": "الخزامى",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-hizam-adh-dhahabi",
+          "name": "الحزام الذهبي",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-lulu",
+          "name": "اللؤلؤ",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "qurtubah",
+          "name": "قرطبة",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-jisr",
+          "name": "الجسر",
+          "featured": false,
+          "intro": ""
+        }
+      ]
+    },
+    {
+      "slug": "dammam",
+      "name": "الدمام",
+      "nameEn": "Dammam",
+      "primary": true,
+      "intro": "الدمام حاضرة المنطقة الشرقية، ومقر مكتب العثمان العقارية في حي الشاطئ الغربي. نعرض لك العقارات المتاحة للبيع والإيجار في أحياء الدمام، من الشقق والفلل إلى الأراضي والعمائر والمحلات التجارية، مع متابعة كاملة للإجراءات.",
+      "districts": [
+        {
+          "slug": "king-fahd-suburb",
+          "name": "ضاحية الملك فهد (الضاحية)",
+          "featured": true,
+          "intro": "ضاحية الملك فهد، أو «الضاحية» كما يسميها أهل الدمام، من أكبر المناطق السكنية في المدينة، ويتنوع الطلب فيها بين الفلل والشقق والأراضي السكنية. ولأن الضاحية واسعة وتختلف أجزاؤها في الأسعار والخدمات، نساعدك في العثمان العقارية على تحديد الموقع الأنسب لاحتياجك وميزانيتك، ونعرض عليك الخيارات المتاحة للبيع والإيجار، ثم نتابع المعاينة والتفاوض وإنهاء الإجراءات. ولملاك العقارات في الضاحية نقدم التسويق والتقييم وإدارة الأملاك والتأجير."
+        },
+        {
+          "slug": "ash-shulah",
+          "name": "الشعلة",
+          "featured": true,
+          "intro": "حي الشعلة من أحياء الدمام التي يكثر فيها البحث عن الشقق والفلل، خصوصًا الشقق ذات الأدوار الكاملة المناسبة للعائلات. نتابع في العثمان العقارية العروض المتاحة في الشعلة للبيع والإيجار، ونوضح لك الفروق بينها في المساحة وعدد الغرف والمداخل والمواقف وعمر المبنى، ونرافقك من المعاينة حتى توقيع العقد. وإذا كنت تملك عقارًا في الشعلة، نتولى تسويقه أو تأجيره وإدارته بالكامل."
+        },
+        {
+          "slug": "al-firdaws",
+          "name": "الفردوس",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "gharnata",
+          "name": "غرناطة",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-jalawiyah",
+          "name": "الجلوية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "ash-shati-al-gharbi",
+          "name": "الشاطئ الغربي",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "ash-shati-ash-sharqi",
+          "name": "الشاطئ الشرقي",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-faisaliyah",
+          "name": "الفيصلية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "an-nur",
+          "name": "النور",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-mazruiyah",
+          "name": "المزروعية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "ar-rayyan",
+          "name": "الريان",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "uhud",
+          "name": "أحد",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "an-nakhil",
+          "name": "النخيل",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-badiyah",
+          "name": "البادية",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "taibah",
+          "name": "طيبة",
+          "featured": false,
+          "intro": ""
+        }
+      ]
+    },
+    {
+      "slug": "dhahran",
+      "name": "الظهران",
+      "nameEn": "Dhahran",
+      "primary": false,
+      "intro": "عروض العثمان العقارية المتاحة في مدينة الظهران.",
+      "districts": [
+        {
+          "slug": "al-jamiah",
+          "name": "الجامعة",
+          "featured": false,
+          "intro": ""
+        }
+      ]
+    },
+    {
+      "slug": "qatif",
+      "name": "القطيف",
+      "nameEn": "Qatif",
+      "primary": false,
+      "intro": "عروض العثمان العقارية المتاحة في محافظة القطيف.",
+      "districts": [
+        {
+          "slug": "an-narjis-tarut",
+          "name": "النرجس (جزيرة تاروت)",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "tarut",
+          "name": "جزيرة تاروت",
+          "featured": false,
+          "intro": ""
+        }
+      ]
+    },
+    {
+      "slug": "hafar-al-batin",
+      "name": "حفر الباطن",
+      "nameEn": "Hafar Al-Batin",
+      "primary": false,
+      "intro": "عروض العثمان العقارية المتاحة في محافظة حفر الباطن.",
+      "districts": [
+        {
+          "slug": "al-wadi",
+          "name": "الوادي",
+          "featured": false,
+          "intro": ""
+        }
+      ]
+    },
+    {
+      "slug": "riyadh",
+      "name": "الرياض",
+      "nameEn": "Riyadh",
+      "primary": false,
+      "intro": "عروض العثمان العقارية المتاحة في مدينة الرياض.",
+      "districts": [
+        {
+          "slug": "badr",
+          "name": "بدر",
+          "featured": false,
+          "intro": ""
+        },
+        {
+          "slug": "al-khair",
+          "name": "الخير",
+          "featured": false,
+          "intro": ""
+        }
+      ]
+    },
+    {
+      "slug": "al-asyah",
+      "name": "الأسياح",
+      "nameEn": "Al Asyah",
+      "primary": false,
+      "intro": "عروض العثمان العقارية المتاحة في محافظة الأسياح بمنطقة القصيم.",
+      "districts": [
+        {
+          "slug": "al-hunaizil",
+          "name": "الحنيظل",
+          "featured": false,
+          "intro": ""
+        }
+      ]
+    }
+  ]
+}

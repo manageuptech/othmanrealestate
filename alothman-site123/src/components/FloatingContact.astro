@@ -1,0 +1,14 @@
+---
+import Icon from './Icon.astro';
+import { SITE, waLink } from '../lib/data';
+const msg = 'السلام عليكم، أرغب بالاستفسار عن عقار';
+---
+<div class="fab">
+  <a class="fab__call" href={`tel:${SITE.phone}`} aria-label="اتصل بنا"><Icon name="phone" size={24} /></a>
+  <a class="fab__wa" href={waLink(msg)} target="_blank" rel="noopener" aria-label="تواصل عبر واتساب" data-wa><Icon name="whatsapp" size={28} /></a>
+</div>
+<nav class="mbar" aria-label="تواصل سريع">
+  <a href={waLink(msg)} target="_blank" rel="noopener" data-wa><Icon name="whatsapp" size={22} />واتساب</a>
+  <a href={`tel:${SITE.phone}`}><Icon name="phone" size={20} />اتصال</a>
+  <a href="/properties/"><Icon name="grid" size={20} />العقارات</a>
+</nav>

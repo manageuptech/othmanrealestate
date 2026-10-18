@@ -1,0 +1,42 @@
+---
+import Icon from './Icon.astro';
+import TypeArt from './TypeArt.astro';
+import { type Property, STATUS, placeLabel, priceLabel, propertyUrl, propertyWa, typeLabelFor, fmt } from '../lib/data';
+interface Props { p: Property; eager?: boolean; delay?: number }
+const { p, eager = false, delay = 0 } = Astro.props;
+const d = p.data;
+---
+<article class="pcard" data-reveal style={`--d:${delay}s`}
+  data-city={d.city} data-district={d.district} data-type={d.type} data-status={d.status}
+  data-price={d.price ?? ''} data-area={d.area ?? ''} data-date={+d.date}
+  data-text={`${d.title} ${placeLabel(p)} ${d.summary}`}>
+  <div class="pcard__media" data-media data-cursor="عرض">
+    <div class="ph"><TypeArt type={d.type} /></div>
+    {d.cover && <img data-photo src={d.cover} alt={d.title} loading={eager ? 'eager' : 'lazy'} decoding="async" width="800" height="600" />}
+    <div class="pcard__badges">
+      <span class="chip chip--gold">{STATUS[d.status]}</span>
+      <span class="chip chip--glass">{typeLabelFor(p)}</span>
+    </div>
+    {d.ref && <span class="pcard__ref">{d.ref}</span>}
+  </div>
+  <div class="pcard__body">
+    <span class="pcard__place"><Icon name="pin" size={16} />{placeLabel(p)}</span>
+    <h3 class="pcard__title"><a href={propertyUrl(p)}>{d.title}</a></h3>
+    {(d.area || d.bedrooms || d.bathrooms || d.floors || d.streetWidth) && (
+      <div class="pcard__facts">
+        {d.area && <span><Icon name="area" size={16} />{fmt(d.area)} م²</span>}
+        {d.bedrooms && <span><Icon name="bed" size={16} />{d.bedrooms} غرف</span>}
+        {d.bathrooms && <span><Icon name="bath" size={16} />{d.bathrooms} دورات مياه</span>}
+        {d.floors && <span><Icon name="floors" size={16} />{d.floors === 2 ? 'دوران' : `${d.floors} أدوار`}</span>}
+        {d.streetWidth && <span><Icon name="road" size={16} />شارع {d.streetWidth} م</span>}
+      </div>
+    )}
+    <div class="pcard__foot">
+      <span class="pcard__price">{priceLabel(p)}</span>
+      <a class="pcard__wa" href={propertyWa(p)} target="_blank" rel="noopener" aria-label={`استفسر عن ${d.title} عبر واتساب`}><Icon name="whatsapp" size={20} /></a>
+    </div>
+  </div>
+</article>
+<style>
+  .pcard__media.is-missing img { display: none; }
+</style>

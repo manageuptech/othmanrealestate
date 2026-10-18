@@ -1,0 +1,77 @@
+---
+import Icon from './Icon.astro';
+import { CITIES, TYPES } from '../lib/data';
+const districts = Object.fromEntries(CITIES.map((c) => [c.slug, c.districts.map((d) => [d.slug, d.name])]));
+---
+<form class="sp" action="/properties/" method="get" role="search" aria-label="ابحث عن عقار" data-sp>
+  <div class="sp__tabs" role="radiogroup" aria-label="نوع العرض">
+    <label><input type="radio" name="status" value="" checked /><span>الكل</span></label>
+    <label><input type="radio" name="status" value="sale" /><span>للبيع</span></label>
+    <label><input type="radio" name="status" value="rent" /><span>للإيجار</span></label>
+  </div>
+  <div class="sp__row">
+    <div class="sp__f">
+      <label for="sp-city">المدينة</label>
+      <select id="sp-city" name="city">
+        <option value="">كل المدن</option>
+        {CITIES.map((c) => <option value={c.slug}>{c.name}</option>)}
+      </select>
+    </div>
+    <div class="sp__f">
+      <label for="sp-district">الحي</label>
+      <select id="sp-district" name="district" disabled>
+        <option value="">اختر المدينة أولًا</option>
+      </select>
+    </div>
+    <div class="sp__f">
+      <label for="sp-type">نوع العقار</label>
+      <select id="sp-type" name="type">
+        <option value="">كل الأنواع</option>
+        {TYPES.map((t) => <option value={t.key}>{t.plural}</option>)}
+      </select>
+    </div>
+    <button class="btn sp__go" type="submit" data-magnetic><Icon name="search" size={20} /><span>ابحث</span></button>
+  </div>
+  <script type="application/json" data-districts set:html={JSON.stringify(districts)} />
+</form>
+<style>
+  .sp { max-width: 980px; padding: 10px; border-radius: 26px; background: rgba(12, 22, 38, .55); border: 1px solid rgba(255, 246, 229, .16); backdrop-filter: blur(22px) saturate(1.4); -webkit-backdrop-filter: blur(22px) saturate(1.4); box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .7); }
+  .sp__tabs { display: inline-flex; gap: 4px; padding: 4px; margin: 4px 4px 10px; border-radius: 999px; background: rgba(255, 246, 229, .06); }
+  .sp__tabs input { position: absolute; opacity: 0; pointer-events: none; }
+  .sp__tabs span { display: inline-block; padding: 6px 18px; border-radius: 999px; font-size: 14.5px; cursor: pointer; transition: background .35s, color .35s; }
+  .sp__tabs input:checked + span { background: var(--ivory); color: var(--navy); font-weight: 600; }
+  .sp__tabs input:focus-visible + span { outline: 2px solid var(--gold-2); }
+  .sp__row { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 6px; }
+  .sp__f { position: relative; display: grid; padding: 10px 18px 8px; border-radius: 18px; background: rgba(255, 246, 229, .05); transition: background .3s; }
+  .sp__f:hover, .sp__f:focus-within { background: rgba(255, 246, 229, .1); }
+  .sp__f label { font-size: 12.5px; color: var(--gold-2); font-weight: 500; }
+  .sp__f select { appearance: none; -webkit-appearance: none; background: transparent; border: 0; padding: 2px 0 4px; font-size: 16px; font-weight: 500; color: var(--ivory); cursor: pointer; outline: none; width: 100%; }
+  .sp__f select:disabled { opacity: .5; cursor: not-allowed; }
+  .sp__f :global(.dd__btn) { padding: 2px 0 4px; font-size: 16px; font-weight: 500; color: var(--ivory); }
+  .sp__f select option { color: var(--navy); background: var(--ivory); }
+  .sp__go { min-height: 100%; padding: 0 34px; border-radius: 18px; }
+  @media (max-width: 860px) {
+    .sp__row { grid-template-columns: 1fr 1fr; }
+    .sp__go { grid-column: 1 / -1; min-height: 54px; }
+  }
+  @media (max-width: 560px) { .sp__f:nth-child(2) { display: none; } .sp__f { padding: 8px 14px 6px; } .sp__tabs span { padding: 5px 14px; } }
+</style>
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-sp]').forEach((form) => {
+    const data = JSON.parse(form.querySelector('[data-districts]')!.textContent || '{}');
+    const city = form.querySelector<HTMLSelectElement>('[name=city]')!;
+    const dist = form.querySelector<HTMLSelectElement>('[name=district]')!;
+    const fill = () => {
+      const list: [string, string][] = data[city.value] || [];
+      dist.innerHTML = `<option value="">${city.value ? 'كل الأحياء' : 'اختر المدينة أولًا'}</option>` + list.map(([s, n]) => `<option value="${s}">${n}</option>`).join('');
+      dist.disabled = !city.value;
+    };
+    city.addEventListener('change', fill);
+    form.addEventListener('submit', () => {
+      // drop empty params for clean URLs
+      form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[name]').forEach((f) => {
+        if ((f as HTMLInputElement).type === 'radio' ? (f as HTMLInputElement).checked && !f.value : !f.value) f.disabled = true;
+      });
+    });
+  });
+</script>

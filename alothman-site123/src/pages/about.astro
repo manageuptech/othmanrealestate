@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { SITE } from '../lib/data';
+---
+<Base title="من نحن | شركة العثمان القابضة للحلول العقارية" description="العثمان العقارية (شركة العثمان القابضة للحلول العقارية) في الدمام: خبرة وثقة في بيع وتأجير وإدارة وتقييم العقارات في الخبر والدمام والمنطقة الشرقية، بأكثر من 200 صفقة ناجحة.">
+  <PageHero eyebrow="من نحن" title="خبرة، ثقة، وعقارات تحقق طموحاتك" crumbs={[{ name: 'من نحن' }]} />
+  <section class="wrap ab">
+    <p class="ab__txt" data-reveal>{SITE.about}</p>
+    <div class="ab__stat" data-reveal>
+      <span class="latin"><span data-count={SITE.stats[0].value}>{SITE.stats[0].value}</span>{SITE.stats[0].suffix}</span>
+      <p>{SITE.stats[0].label}. أرقامنا تعكس الثقة التي نلناها والنتائج التي حققناها في السوق السعودي.</p>
+    </div>
+  </section>
+  <section class="section section--ivory">
+    <div class="wrap">
+      <span class="eyebrow">حياة متجددة تصنع الفرق</span>
+      <h2 class="h-xl" data-split style="margin:14px 0 50px">ما نلتزم به</h2>
+      <ul class="vals" role="list">
+        {SITE.values.map((v, i) => <li data-reveal style={`--d:${i * .08}s`}><Icon name={v.icon} size={34} /><span>{v.title}</span></li>)}
+      </ul>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap office2">
+      <div>
+        <span class="eyebrow">مكتبنا</span>
+        <h2 class="h-lg" style="margin:14px 0 14px">مكتب الاستشارات العقارية</h2>
+        <p class="lead">{SITE.address.line}، {SITE.address.city}، {SITE.address.region}.</p>
+        <p class="muted">إدارة كافة العمليات العقارية، وتطوير المشاريع، وتلبية احتياجات السوق المحلي في الدمام والمنطقة الشرقية.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px">
+          <a class="btn" href="/contact/">تواصل معنا <Icon name="arrow" size={18} /></a>
+          <a class="btn btn--ghost" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(SITE.address.mapsQuery)}`} target="_blank" rel="noopener"><Icon name="pin" size={18} />التوجه للموقع</a>
+        </div>
+      </div>
+      <img src="/brand/logo-mark.png" alt="" width="120" height="121" class="office2__logo" loading="lazy" />
+    </div>
+  </section>
+</Base>
+<style>
+  .ab { display: grid; grid-template-columns: 2fr 1fr; gap: clamp(30px, 6vw, 100px); padding-bottom: clamp(70px, 9vw, 130px); }
+  .ab__txt { font-family: var(--f-display); font-weight: 300; font-size: clamp(21px, 2.2vw, 30px); line-height: 1.8; }
+  .ab__stat .latin { font-size: clamp(90px, 10vw, 150px); color: var(--gold); line-height: 1; font-style: normal; }
+  .ab__stat p { color: var(--on-dark-soft); }
+  .vals { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .vals li { display: grid; gap: 18px; padding: 28px 22px; border-radius: var(--radius); background: #fff; border: 1px solid var(--line-light); font-weight: 600; font-size: 18px; }
+  .vals .icon { color: var(--gold); }
+  .office2 { display: flex; justify-content: space-between; align-items: center; gap: 40px; }
+  .office2__logo { width: clamp(120px, 18vw, 240px); height: auto; opacity: .9; }
+  @media (max-width: 960px) { .ab { grid-template-columns: 1fr; } .vals { grid-template-columns: 1fr 1fr; } .office2__logo { display: none; } }
+</style>

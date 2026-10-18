@@ -1,0 +1,30 @@
+---
+interface Props { items: { q: string; a: string }[]; title?: string }
+const { items, title = 'أسئلة شائعة' } = Astro.props;
+const ld = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: items.map((i) => ({ '@type': 'Question', name: i.q, acceptedAnswer: { '@type': 'Answer', text: i.a } })) };
+---
+<section class="faq" aria-labelledby="faq-h">
+  <h2 class="h-lg" id="faq-h" data-split>{title}</h2>
+  <div class="faq__list">
+    {items.map((i) => (
+      <details class="faq__it" data-reveal>
+        <summary><span>{i.q}</span><i aria-hidden="true"></i></summary>
+        <p>{i.a}</p>
+      </details>
+    ))}
+  </div>
+  <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+</section>
+<style>
+  .faq { display: grid; grid-template-columns: 1fr 2fr; gap: clamp(30px, 5vw, 80px); align-items: start; }
+  .faq__it { border-bottom: 1px solid currentColor; border-color: var(--line-light); }
+  .faq__it:first-child { border-top: 1px solid var(--line-light); }
+  summary { list-style: none; display: flex; justify-content: space-between; gap: 20px; align-items: center; padding: 22px 0; cursor: pointer; font-size: 19px; font-weight: 500; }
+  summary::-webkit-details-marker { display: none; }
+  summary i { position: relative; flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--gold); }
+  summary i::before, summary i::after { content: ''; position: absolute; top: 50%; left: 50%; width: 12px; height: 1.5px; background: var(--gold); transform: translate(-50%, -50%); transition: transform .4s var(--ease); }
+  summary i::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .faq__it[open] summary i::after { transform: translate(-50%, -50%) rotate(0); }
+  .faq__it p { padding-bottom: 22px; margin: 0; opacity: .8; max-width: 65ch; }
+  @media (max-width: 860px) { .faq { grid-template-columns: 1fr; } }
+</style>

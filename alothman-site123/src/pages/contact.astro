@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Icon from '../components/Icon.astro';
+import { SITE, waLink } from '../lib/data';
+const ld = [{ '@context': 'https://schema.org', '@type': 'ContactPage', name: 'تواصل مع العثمان العقارية', url: 'https://alothman.com.sa/contact/' }];
+---
+<Base title="تواصل معنا | العثمان العقارية - الدمام" description={`تواصل مع العثمان العقارية: ${SITE.phoneDisplay} | واتساب المبيعات | ${SITE.address.line}، ${SITE.address.city}.`} jsonld={ld}>
+  <PageHero eyebrow="تواصل معنا" title="تحتاج استفسار؟ تواصل الآن مع قسم المبيعات" crumbs={[{ name: 'تواصل معنا' }]} />
+  <section class="wrap ct">
+    <div class="ct__cards">
+      <a class="ctc" href={waLink('السلام عليكم، أرغب بالاستفسار عن عقار')} target="_blank" rel="noopener" data-reveal><span class="ctc__ic" style="background:#25d366;color:#fff"><Icon name="whatsapp" size={28} /></span><span><small>واتساب المبيعات</small><b>ابدأ المحادثة</b></span></a>
+      <a class="ctc" href={`tel:${SITE.phone}`} data-reveal style="--d:.08s"><span class="ctc__ic"><Icon name="phone" size={26} /></span><span><small>اتصال مباشر</small><b dir="ltr">{SITE.phoneDisplay}</b></span></a>
+      <a class="ctc" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(SITE.address.mapsQuery)}`} target="_blank" rel="noopener" data-reveal style="--d:.16s"><span class="ctc__ic"><Icon name="pin" size={26} /></span><span><small>مكتب الاستشارات العقارية</small><b>{SITE.address.line}، {SITE.address.city}</b></span></a>
+      {SITE.email && <a class="ctc" href={`mailto:${SITE.email}`}><span class="ctc__ic"><Icon name="mail" size={26} /></span><span><small>البريد</small><b>{SITE.email}</b></span></a>}
+      <div class="map2" data-reveal="clip"><iframe src={`https://maps.google.com/maps?q=${encodeURIComponent(SITE.address.mapsQuery)}&z=15&output=embed`} loading="lazy" title="موقع مكتب العثمان العقارية" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    </div>
+    <LeadForm title="أرسل طلبك" id="ct" />
+  </section>
+</Base>
+<style>
+  .ct { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 5vw, 80px); padding-bottom: clamp(80px, 10vw, 140px); align-items: start; }
+  .ct__cards { display: grid; gap: 12px; }
+  .ctc { display: flex; align-items: center; gap: 18px; padding: 20px; border-radius: var(--radius); background: var(--navy-800); border: 1px solid var(--line-dark); transition: border-color .4s, transform .5s var(--ease); }
+  .ctc:hover { border-color: var(--gold); transform: translateX(-6px); }
+  .ctc__ic { flex: none; width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: var(--gold); color: var(--navy); }
+  .ctc small { display: block; color: var(--on-dark-mute); font-size: 14px; }
+  .ctc b { font-size: 18px; font-weight: 600; }
+  .map2 { aspect-ratio: 16/10; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-dark); background: var(--navy-800); }
+  .map2 iframe { width: 100%; height: 100%; border: 0; filter: grayscale(.4); }
+  @media (max-width: 900px) { .ct { grid-template-columns: 1fr; } }
+</style>

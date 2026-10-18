@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>لوحة التحكم | العثمان العقارية</title>
+<link rel="icon" href="/brand/logo-mark.png" />
+<style>
+  :root {
+    --navy: #142238; --navy-2: #1b2d49; --navy-3: #0c1626; --ivory: #fff6e5; --ivory-2: #f6ecd8;
+    --gold: #c3942d; --gold-2: #e2bc66; --ink: #142238; --mute: #66708a; --line: #e6dcc6; --red: #b3261e; --green: #1f7a4d;
+    --r: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, "Noto Sans Arabic", system-ui, sans-serif; background: var(--ivory); color: var(--ink); font-size: 15.5px; line-height: 1.6; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; }
+  .hidden { display: none !important; }
+
+  /* login */
+  .login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(1200px 600px at 80% -10%, #22385c 0, transparent 60%), var(--navy); }
+  .login__card { width: min(400px, 100%); background: var(--navy-3); border: 1px solid rgba(255,246,229,.12); border-radius: 22px; padding: 36px 28px; color: var(--ivory); text-align: center; box-shadow: 0 40px 80px -40px #000; }
+  .login__card img { width: 64px; height: 64px; }
+  .login__card h1 { font-size: 22px; font-weight: 600; margin: 14px 0 4px; }
+  .login__card p { margin: 0 0 24px; color: rgba(255,246,229,.6); font-size: 14px; }
+  .login__card input { width: 100%; height: 52px; border-radius: 12px; border: 1px solid rgba(255,246,229,.2); background: rgba(255,246,229,.06); padding: 0 16px; text-align: center; font-size: 18px; letter-spacing: .2em; outline: none; }
+  .login__card input:focus { border-color: var(--gold); }
+  .login__err { color: #ffb4ab; font-size: 14px; min-height: 22px; margin: 10px 0 4px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid transparent; background: var(--navy); color: var(--ivory); font-weight: 600; font-size: 15px; text-decoration: none; white-space: nowrap; transition: filter .2s, background .2s; }
+  .btn:hover { filter: brightness(1.12); }
+  .btn:disabled { opacity: .5; cursor: progress; }
+  .btn--gold { background: var(--gold); color: var(--navy); }
+  .btn--line { background: transparent; border-color: var(--line); color: var(--ink); }
+  .btn--line:hover { background: #fff; }
+  .btn--danger { background: transparent; color: var(--red); border-color: #efc9c4; }
+  .btn--danger:hover { background: #fdeceb; }
+  .btn--sm { height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+  .btn--block { width: 100%; height: 52px; }
+
+  /* app shell */
+  .top { position: sticky; top: 0; z-index: 30; background: var(--navy); color: var(--ivory); }
+  .top__in { max-width: 1180px; margin: auto; display: flex; align-items: center; gap: 14px; padding: 12px 20px; }
+  .top__brand { display: flex; align-items: center; gap: 10px; font-weight: 600; margin-inline-end: auto; }
+  .top__brand img { width: 36px; height: 36px; }
+  .top__brand small { display: block; color: rgba(255,246,229,.55); font-weight: 400; font-size: 12.5px; }
+  .top .btn--line { color: var(--ivory); border-color: rgba(255,246,229,.22); }
+  .top .btn--line:hover { background: rgba(255,246,229,.08); }
+  .pill { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; padding: 6px 12px; border-radius: 999px; background: rgba(255,246,229,.08); color: rgba(255,246,229,.85); }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; background: #6fcf97; }
+  .pill.is-building i { background: var(--gold-2); animation: blink 1s infinite; }
+  .pill.is-error i { background: #ff8a80; }
+  @keyframes blink { 50% { opacity: .2; } }
+
+  main { max-width: 1180px; margin: auto; padding: 28px 20px 120px; }
+  .head { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; margin-bottom: 18px; }
+  .head h2 { margin: 0; font-size: 26px; font-weight: 600; margin-inline-end: auto; }
+  .head h2 small { font-size: 15px; color: var(--mute); font-weight: 400; margin-inline-start: 8px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .tools input, .tools select { height: 44px; border-radius: 12px; border: 1px solid var(--line); background: #fff; padding: 0 14px; outline: none; }
+  .tools input { flex: 1; min-width: 200px; }
+  .tools input:focus, .tools select:focus { border-color: var(--gold); }
+
+  .list { display: grid; gap: 10px; }
+  .row { display: grid; grid-template-columns: 96px 1fr auto; gap: 16px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: var(--r); padding: 10px; }
+  .row.is-off { opacity: .6; }
+  .row__img { width: 96px; height: 72px; border-radius: 10px; object-fit: cover; background: var(--ivory-2); display: block; }
+  .row__t { font-weight: 600; font-size: 16px; line-height: 1.45; }
+  .row__m { color: var(--mute); font-size: 13.5px; display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; }
+  .row__m b { color: var(--ink); font-weight: 600; }
+  .row__a { display: flex; gap: 6px; flex-wrap: wrap; justify-content: end; }
+  .tag { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--ivory-2); color: var(--ink); }
+  .tag--gold { background: #f6e7c4; color: #7a5a10; }
+  .tag--red { background: #fdeceb; color: var(--red); }
+  .empty { text-align: center; padding: 60px 20px; color: var(--mute); border: 1px dashed var(--line); border-radius: var(--r); }
+
+  /* editor */
+  .ed { max-width: 900px; margin: auto; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 14px; }
+  .card h3 { margin: 0 0 16px; font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .card h3 span { width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: var(--ivory); font-size: 13px; display: grid; place-items: center; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+  .f { display: grid; gap: 6px; align-content: start; }
+  .f--wide { grid-column: 1 / -1; }
+  .f label, .f .lbl { font-size: 13.5px; color: var(--mute); font-weight: 500; }
+  .f label em { color: var(--red); font-style: normal; }
+  .f input, .f select, .f textarea { width: 100%; height: 46px; border-radius: 11px; border: 1px solid var(--line); background: #fffdf8; padding: 0 12px; outline: none; transition: border-color .2s, box-shadow .2s; }
+  .f textarea { height: auto; min-height: 96px; padding: 10px 12px; resize: vertical; line-height: 1.7; }
+  .f input:focus, .f select:focus, .f textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(195,148,45,.15); }
+  .f small { color: var(--mute); font-size: 12.5px; }
+  .seg { display: inline-flex; background: var(--ivory-2); border-radius: 12px; padding: 4px; gap: 4px; }
+  .seg label { margin: 0; }
+  .seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg span { display: block; padding: 7px 18px; border-radius: 9px; font-weight: 600; color: var(--mute); cursor: pointer; }
+  .seg input:checked + span { background: var(--navy); color: var(--ivory); }
+  .inline { display: flex; gap: 8px; }
+  .inline > *:first-child { flex: 1; min-width: 0; }
+  .chk { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; background: #fffdf8; }
+  .chk input { width: 20px; height: 20px; accent-color: var(--navy); }
+  .chk b { display: block; font-weight: 600; }
+  .chk small { color: var(--mute); }
+
+  .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .ph { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--ivory-2); }
+  .ph img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+  .ph.is-cover { outline: 3px solid var(--gold); outline-offset: -3px; }
+  .ph__cover { position: absolute; top: 8px; inset-inline-start: 8px; background: var(--gold); color: var(--navy); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .ph__a { display: flex; gap: 4px; padding: 6px; background: #fff; }
+  .ph__a button { flex: 1; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 12.5px; }
+  .ph__a button:hover { background: var(--ivory); }
+  .ph__a .del { color: var(--red); }
+  .drop { display: grid; place-items: center; gap: 4px; text-align: center; min-height: 150px; border: 2px dashed #d9c9a3; border-radius: 12px; background: #fffaf0; color: var(--mute); cursor: pointer; padding: 14px; transition: background .2s, border-color .2s; }
+  .drop:hover, .drop.is-over { background: #fff3da; border-color: var(--gold); }
+  .drop b { color: var(--ink); }
+
+  .bar { position: fixed; inset: auto 0 0 0; z-index: 25; background: rgba(255,246,229,.94); backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
+  .bar__in { max-width: 900px; margin: auto; display: flex; gap: 10px; align-items: center; padding: 12px 20px; }
+  .bar__msg { margin-inline-end: auto; color: var(--red); font-size: 14px; }
+
+  /* toast + modal */
+  .toast { position: fixed; z-index: 90; bottom: 90px; left: 50%; transform: translate(-50%, 20px); opacity: 0; transition: .3s; background: var(--navy); color: var(--ivory); padding: 12px 18px; border-radius: 12px; box-shadow: 0 20px 40px -20px #000; max-width: calc(100% - 32px); text-align: center; pointer-events: none; }
+  .toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+  .toast.is-err { background: var(--red); }
+  .modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; background: rgba(12,22,38,.55); padding: 20px; }
+  .modal__box { background: #fff; border-radius: 18px; padding: 24px; width: min(420px, 100%); }
+  .modal__box h4 { margin: 0 0 8px; font-size: 18px; }
+  .modal__box p { margin: 0 0 18px; color: var(--mute); }
+  .modal__box .f { margin-bottom: 12px; }
+  .modal__a { display: flex; gap: 8px; justify-content: end; }
+
+  @media (max-width: 720px) {
+    .top__in { flex-wrap: wrap; padding: 10px 14px; gap: 8px; }
+    .top__view { display: none !important; }
+    main { padding: 20px 14px 120px; }
+    .row { grid-template-columns: 72px 1fr; }
+    .row__img { width: 72px; height: 60px; }
+    .row__a { grid-column: 1 / -1; justify-content: stretch; }
+    .row__a .btn { flex: 1; }
+    .card { padding: 16px; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .photos { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- login -->
+<section class="login hidden" id="login">
+  <form class="login__card" id="loginForm" autocomplete="off">
+    <img src="/brand/logo-mark.png" alt="" />
+    <h1>لوحة التحكم</h1>
+    <p>العثمان العقارية</p>
+    <input type="password" id="pw" inputmode="numeric" placeholder="كلمة المرور" aria-label="كلمة المرور" autocomplete="current-password" required />
+    <div class="login__err" id="loginErr" role="alert"></div>
+    <button class="btn btn--gold btn--block" type="submit">دخول</button>
+  </form>
+</section>
+
+<!-- app -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="top__in">
+      <div class="top__brand"><img src="/brand/logo-mark.png" alt="" /><div>لوحة التحكم<small>العثمان العقارية</small></div></div>
+      <span class="pill" id="buildPill"><i></i><span>الموقع محدّث</span></span>
+      <a class="btn btn--line btn--sm top__view" href="/" target="_blank">عرض الموقع</a>
+      <button class="btn btn--line btn--sm" id="logout">خروج</button>
+    </div>
+  </header>
+
+  <!-- listings -->
+  <main id="listView">
+    <div class="head">
+      <h2>العقارات <small id="count"></small></h2>
+      <button class="btn btn--gold" id="addBtn">+ إضافة عقار</button>
+    </div>
+    <div class="tools">
+      <input type="search" id="q" placeholder="ابحث بالعنوان أو الحي أو رقم العرض" />
+      <select id="fStatus" aria-label="الحالة">
+        <option value="">كل العروض</option>
+        <option value="on">المعروضة</option>
+        <option value="off">المخفية / المباعة</option>
+        <option value="featured">المميزة</option>
+      </select>
+    </div>
+    <div class="list" id="list"></div>
+  </main>
+
+  <!-- editor -->
+  <main id="editView" class="hidden">
+    <form class="ed" id="ed" novalidate>
+      <div class="head">
+        <h2 id="edTitle">عقار جديد</h2>
+        <button class="btn btn--line" type="button" data-back>رجوع للقائمة</button>
+      </div>
+
+      <section class="card">
+        <h3><span>1</span>الأساسيات</h3>
+        <div class="grid">
+          <div class="f f--wide"><label for="title">عنوان الإعلان <em>*</em></label><input id="title" name="title" required placeholder="مثال: فيلا دورين للبيع في حي الشاطئ بالدمام" /></div>
+          <div class="f"><span class="lbl">نوع العرض</span>
+            <div class="seg"><label><input type="radio" name="status" value="sale" checked /><span>للبيع</span></label><label><input type="radio" name="status" value="rent" /><span>للإيجار</span></label></div>
+          </div>
+          <div class="f"><label for="type">نوع العقار <em>*</em></label><select id="type" name="type"></select></div>
+          <div class="f" id="rentWrap"><label for="rentPeriod">مدة الإيجار</label><select id="rentPeriod" name="rentPeriod"><option value="">—</option><option value="yearly">سنوي</option><option value="monthly">شهري</option></select></div>
+          <div class="f"><label for="city">المدينة <em>*</em></label><select id="city" name="city"></select></div>
+          <div class="f"><label for="district">الحي <em>*</em></label>
+            <div class="inline"><select id="district" name="district"></select><button class="btn btn--line btn--sm" type="button" id="addDistrict" title="إضافة حي جديد" style="height:46px">+ حي</button></div>
+          </div>
+          <div class="f"><label for="street">الشارع</label><input id="street" name="street" /></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3><span>2</span>السعر</h3>
+        <div class="grid">
+          <div class="f"><label for="price">السعر (ريال)</label><input id="price" name="price" inputmode="numeric" placeholder="اتركه فارغًا = على السوم" /></div>
+          <div class="f"><label for="oldPrice">السعر قبل التخفيض</label><input id="oldPrice" name="oldPrice" inputmode="numeric" /></div>
+          <div class="f f--wide"><label for="priceNote">ملاحظة على السعر</label><input id="priceNote" name="priceNote" placeholder="مثال: قابل للتفاوض، أو: سعر المتر 1,300 ريال" /></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3><span>3</span>المواصفات</h3>
+        <div class="grid">
+          <div class="f"><label for="area">المساحة (م²)</label><input id="area" name="area" inputmode="decimal" /></div>
+          <div class="f"><label for="bedrooms">غرف النوم</label><input id="bedrooms" name="bedrooms" inputmode="numeric" /></div>
+          <div class="f"><label for="bathrooms">دورات المياه</label><input id="bathrooms" name="bathrooms" inputmode="numeric" /></div>
+          <div class="f"><label for="livingRooms">الصالات</label><input id="livingRooms" name="livingRooms" inputmode="numeric" /></div>
+          <div class="f"><label for="floors">عدد الأدوار</label><input id="floors" name="floors" inputmode="numeric" /></div>
+          <div class="f"><label for="streetWidth">عرض الشارع (م)</label><input id="streetWidth" name="streetWidth" inputmode="numeric" /></div>
+          <div class="f"><label for="facing">الواجهة</label><input id="facing" name="facing" list="facings" placeholder="شمالية" /></div>
+          <div class="f"><label for="age">عمر العقار</label><input id="age" name="age" placeholder="مثال: جديد، أو 5 سنوات" /></div>
+          <div class="f f--wide"><label for="features">المميزات</label><textarea id="features" name="features" rows="4" placeholder="ميزة في كل سطر، مثال:&#10;ملحق أرضي&#10;مدخل سيارة&#10;ماء وكهرباء وصرف صحي"></textarea><small>اكتب كل ميزة في سطر مستقل.</small></div>
+        </div>
+        <datalist id="facings"><option>شمالية</option><option>جنوبية</option><option>شرقية</option><option>غربية</option><option>شمالية شرقية</option><option>شمالية غربية</option><option>جنوبية شرقية</option><option>جنوبية غربية</option><option>ثلاث واجهات</option><option>زاوية</option></datalist>
+      </section>
+
+      <section class="card">
+        <h3><span>4</span>الصور</h3>
+        <div class="photos" id="photos"></div>
+        <input type="file" id="file" accept="image/jpeg,image/png,image/webp" multiple hidden />
+        <p class="f"><small>أول صورة هي صورة الغلاف. تقدر تغيّرها بزر «غلاف». الصور الكبيرة تُصغَّر تلقائيًا قبل الرفع.</small></p>
+      </section>
+
+      <section class="card">
+        <h3><span>5</span>الوصف والموقع</h3>
+        <div class="grid">
+          <div class="f f--wide"><label for="summary">وصف مختصر <em>*</em></label><textarea id="summary" name="summary" rows="3" maxlength="320" placeholder="جملة أو جملتان تظهر في نتائج قوقل وبطاقة العقار"></textarea><small><span id="sumCount">0</span> / 320 حرف</small></div>
+          <div class="f f--wide"><label for="body">التفاصيل الكاملة</label><textarea id="body" name="body" rows="9" placeholder="وصف العقار بالتفصيل. سطر يبدأ بـ - يصير نقطة في قائمة."></textarea></div>
+          <div class="f f--wide"><label for="mapUrl">رابط الموقع في خرائط قوقل</label><input id="mapUrl" name="mapUrl" dir="ltr" placeholder="https://maps.app.goo.gl/..." /></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3><span>6</span>الظهور</h3>
+        <div class="grid">
+          <label class="chk"><input type="checkbox" name="available" checked /><div><b>معروض في الموقع</b><small>ألغِ التحديد إذا انباع أو تبي تخفيه</small></div></label>
+          <label class="chk"><input type="checkbox" name="featured" /><div><b>عقار مميز</b><small>يظهر في الصفحة الرئيسية</small></div></label>
+          <div class="f"><label for="date">تاريخ الإضافة</label><input type="date" id="date" name="date" /></div>
+        </div>
+      </section>
+
+      <div class="bar"><div class="bar__in">
+        <span class="bar__msg" id="edMsg" role="alert"></span>
+        <button class="btn btn--line" type="button" data-back>إلغاء</button>
+        <button class="btn btn--gold" type="submit" id="saveBtn">حفظ ونشر</button>
+      </div></div>
+    </form>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n) => (n || n === 0 ? Number(n).toLocaleString('en-US') : '');
+
+let META = null, ITEMS = [], editing = null, photos = [], cover = '';
+
+async function api(path, opts = {}) {
+  const res = await fetch('/admin/api/' + path, {
+    method: opts.method || 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    credentials: 'same-origin',
+  });
+  let data = {}; try { data = await res.json(); } catch {}
+  if (res.status === 401 && path !== 'login') { show('login'); throw new Error(data.error || 'سجّل الدخول'); }
+  if (!res.ok) throw new Error(data.error || 'حدث خطأ، حاول مرة ثانية');
+  return data;
+}
+function toast(msg, err) {
+  const t = $('#toast'); t.textContent = msg; t.classList.toggle('is-err', !!err); t.classList.add('is-on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('is-on'), err ? 5000 : 3000);
+}
+function show(which) {
+  $('#login').classList.toggle('hidden', which !== 'login');
+  $('#app').classList.toggle('hidden', which === 'login');
+  if (which === 'login') setTimeout(() => $('#pw').focus(), 50);
+}
+
+/* ---------- login ---------- */
+$('#loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = e.submitter; btn.disabled = true; $('#loginErr').textContent = '';
+  try { await api('login', { method: 'POST', body: { password: $('#pw').value } }); $('#pw').value = ''; await boot(); }
+  catch (err) { $('#loginErr').textContent = err.message; }
+  btn.disabled = false;
+});
+$('#logout').addEventListener('click', async () => { await api('logout', { method: 'POST' }).catch(() => {}); show('login'); });
+
+/* ---------- list ---------- */
+const cityName = (c) => META.cities.find((x) => x.slug === c)?.name || c;
+const distName = (c, d) => META.cities.find((x) => x.slug === c)?.districts.find((x) => x.slug === d)?.name || d;
+const typeName = (k) => META.types.find((x) => x.key === k)?.name || k;
+
+function renderList() {
+  const q = $('#q').value.trim().toLowerCase(), f = $('#fStatus').value;
+  const rows = ITEMS.filter(({ data: d }) => {
+    if (f === 'on' && d.available === false) return false;
+    if (f === 'off' && d.available !== false) return false;
+    if (f === 'featured' && !d.featured) return false;
+    if (!q) return true;
+    return [d.title, d.ref, cityName(d.city), distName(d.city, d.district), typeName(d.type)].join(' ').toLowerCase().includes(q);
+  });
+  $('#count').textContent = `(${ITEMS.length})`;
+  $('#list').innerHTML = rows.length ? rows.map(({ file, data: d }) => `
+    <article class="row ${d.available === false ? 'is-off' : ''}">
+      ${d.cover ? `<img class="row__img" src="${esc(d.cover)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="row__img"></div>'}
+      <div>
+        <div class="row__t">${esc(d.title)}</div>
+        <div class="row__m">
+          <span>${esc(d.ref || '')}</span>
+          <span>${esc(typeName(d.type))} · ${d.status === 'rent' ? 'للإيجار' : 'للبيع'}</span>
+          <span>${esc(distName(d.city, d.district))}، ${esc(cityName(d.city))}</span>
+          <b>${d.price ? fmt(d.price) + ' ريال' : 'على السوم'}</b>
+          ${d.featured ? '<span class="tag tag--gold">مميز</span>' : ''}
+          ${d.available === false ? '<span class="tag tag--red">مخفي</span>' : ''}
+        </div>
+      </div>
+      <div class="row__a">
+        <button class="btn btn--sm" data-edit="${esc(file)}">تعديل</button>
+        <a class="btn btn--line btn--sm" href="/properties/${esc(d.slug_en || file.replace(/\.md$/, ''))}/" target="_blank">عرض</a>
+        <button class="btn btn--danger btn--sm" data-del="${esc(file)}">حذف</button>
+      </div>
+    </article>`).join('') : `<div class="empty">${ITEMS.length ? 'لا توجد نتائج مطابقة.' : 'لا توجد عقارات بعد. اضغط «إضافة عقار».'}</div>`;
+}
+$('#q').addEventListener('input', renderList);
+$('#fStatus').addEventListener('change', renderList);
+$('#list').addEventListener('click', (e) => {
+  const ed = e.target.closest('[data-edit]'); if (ed) return openEditor(ITEMS.find((x) => x.file === ed.dataset.edit));
+  const del = e.target.closest('[data-del]'); if (del) return confirmDelete(ITEMS.find((x) => x.file === del.dataset.del));
+});
+
+function modal(html, onOk) {
+  const m = document.createElement('div'); m.className = 'modal'; m.innerHTML = `<div class="modal__box" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(m);
+  const close = () => m.remove();
+  m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('[data-cancel]')) close(); });
+  m.querySelector('[data-ok]')?.addEventListener('click', async (e) => { e.target.disabled = true; try { await onOk(m); close(); } catch (err) { toast(err.message, true); e.target.disabled = false; } });
+  m.querySelector('input, [data-ok]')?.focus();
+  return m;
+}
+function confirmDelete(it) {
+  modal(`<h4>حذف العقار؟</h4><p>«${esc(it.data.title)}» سيُحذف من الموقع نهائيًا. إذا انباع وتبي تحتفظ فيه، استخدم «تعديل» وألغِ «معروض في الموقع».</p>
+    <div class="modal__a"><button class="btn btn--line" data-cancel>إلغاء</button><button class="btn" style="background:var(--red)" data-ok>حذف</button></div>`,
+  async () => { await api('listings/' + encodeURIComponent(it.file), { method: 'DELETE' }); toast('تم الحذف، وجاري تحديث الموقع'); await loadItems(); pollBuild(); });
+}
+
+/* ---------- editor ---------- */
+const F = (n) => $('#ed').elements[n];
+function fillDistricts(city, keep) {
+  const c = META.cities.find((x) => x.slug === city);
+  F('district').innerHTML = '<option value="">اختر الحي</option>' + (c ? c.districts.map((d) => `<option value="${esc(d.slug)}">${esc(d.name)}</option>`).join('') : '');
+  F('district').value = keep || '';
+}
+F('city').addEventListener('change', () => fillDistricts(F('city').value));
+function toggleRent() { $('#rentWrap').classList.toggle('hidden', $('#ed').elements.status.value !== 'rent'); }
+$$('input[name=status]').forEach((r) => r.addEventListener('change', toggleRent));
+F('summary').addEventListener('input', () => ($('#sumCount').textContent = F('summary').value.length));
+
+function openEditor(it) {
+  editing = it || null;
+  const d = it?.data || { status: 'sale', available: true, featured: false, date: new Date().toISOString().slice(0, 10) };
+  $('#edTitle').textContent = it ? `تعديل ${d.ref || ''}` : 'عقار جديد';
+  const f = $('#ed'); f.reset();
+  F('title').value = d.title || '';
+  f.elements.status.value = d.status || 'sale';
+  F('type').value = d.type || '';
+  F('rentPeriod').value = d.rentPeriod || '';
+  F('city').value = d.city || '';
+  fillDistricts(d.city, d.district);
+  for (const k of ['street', 'price', 'oldPrice', 'priceNote', 'area', 'bedrooms', 'bathrooms', 'livingRooms', 'floors', 'streetWidth', 'facing', 'age', 'summary', 'mapUrl', 'date'])
+    F(k).value = d[k] ?? '';
+  F('price').value = d.price ? fmt(d.price) : ''; F('oldPrice').value = d.oldPrice ? fmt(d.oldPrice) : '';
+  F('features').value = (d.features || []).join('\n');
+  F('body').value = it?.body || '';
+  F('available').checked = d.available !== false;
+  F('featured').checked = !!d.featured;
+  photos = [...(d.images || [])]; cover = d.cover || photos[0] || '';
+  if (cover && !photos.includes(cover)) photos.unshift(cover);
+  $('#sumCount').textContent = F('summary').value.length;
+  $('#edMsg').textContent = '';
+  toggleRent(); renderPhotos();
+  $('#listView').classList.add('hidden'); $('#editView').classList.remove('hidden'); window.scrollTo(0, 0);
+}
+function closeEditor() { $('#editView').classList.add('hidden'); $('#listView').classList.remove('hidden'); window.scrollTo(0, 0); }
+$$('[data-back]').forEach((b) => b.addEventListener('click', closeEditor));
+$('#addBtn').addEventListener('click', () => openEditor(null));
+
+// number inputs: show thousands separators while typing
+['price', 'oldPrice'].forEach((n) => F(n).addEventListener('input', (e) => {
+  const raw = e.target.value.replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[^\d]/g, '');
+  e.target.value = raw ? Number(raw).toLocaleString('en-US') : '';
+}));
+
+/* photos */
+function renderPhotos() {
+  $('#photos').innerHTML = photos.map((p, i) => `
+    <div class="ph ${p === cover ? 'is-cover' : ''}">
+      ${p === cover ? '<span class="ph__cover">الغلاف</span>' : ''}
+      <img src="${esc(p)}" alt="" onerror="this.style.opacity=.2">
+      <div class="ph__a">
+        ${p === cover ? '' : `<button type="button" data-cover="${i}">غلاف</button>`}
+        ${i > 0 ? `<button type="button" data-left="${i}" title="تقديم">→</button>` : ''}
+        <button type="button" class="del" data-rm="${i}">حذف</button>
+      </div>
+    </div>`).join('') + `<label class="drop" id="drop" for="file"><span style="font-size:28px">＋</span><b>أضف صورًا</b><small>اضغط أو اسحب الصور هنا</small></label>`;
+  const drop = $('#drop');
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('is-over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('is-over'); upload(e.dataTransfer.files); });
+}
+$('#photos').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.cover) cover = photos[+b.dataset.cover];
+  if (b.dataset.left) { const i = +b.dataset.left; [photos[i - 1], photos[i]] = [photos[i], photos[i - 1]]; }
+  if (b.dataset.rm) { const [gone] = photos.splice(+b.dataset.rm, 1); if (gone === cover) cover = photos[0] || ''; }
+  renderPhotos();
+});
+$('#file').addEventListener('change', (e) => { upload(e.target.files); e.target.value = ''; });
+
+function shrink(file, max = 2000) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(); const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); resolve(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('تعذّر قراءة الصورة: ' + file.name)); };
+    img.src = url;
+  });
+}
+async function upload(files) {
+  const list = Array.from(files || []).filter((f) => /^image\//.test(f.type));
+  if (!list.length) return;
+  const drop = $('#drop'); drop.innerHTML = `<b>جاري رفع ${list.length} صورة…</b>`;
+  const base = [F('type').value, F('district').value, F('city').value].filter(Boolean).join('-') || 'photo';
+  for (const f of list) {
+    try {
+      const dataUrl = await shrink(f);
+      const r = await api('upload', { method: 'POST', body: { name: base, dataUrl } });
+      photos.push(r.path); if (!cover) cover = r.path;
+    } catch (err) { toast(err.message, true); }
+  }
+  renderPhotos();
+}
+
+/* add district */
+$('#addDistrict').addEventListener('click', () => {
+  if (!F('city').value) { toast('اختر المدينة أولًا', true); F('city').focus(); return; }
+  modal(`<h4>إضافة حي في ${esc(cityName(F('city').value))}</h4>
+    <div class="f"><label>اسم الحي بالعربي</label><input id="dName" placeholder="مثال: الدرة"></div>
+    <div class="f"><label>اسم الحي بالإنجليزي (اختياري، يظهر في الرابط)</label><input id="dSlug" dir="ltr" placeholder="al-durrah"></div>
+    <div class="modal__a"><button class="btn btn--line" data-cancel>إلغاء</button><button class="btn" data-ok>إضافة</button></div>`,
+  async (m) => {
+    const r = await api('district', { method: 'POST', body: { city: F('city').value, name: $('#dName', m).value, slug: $('#dSlug', m).value } });
+    META = await api('meta');
+    fillDistricts(F('city').value, r.slug);
+    toast(`أُضيف حي ${r.name}`);
+  });
+});
+
+/* save */
+$('#ed').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, msg = $('#edMsg'); msg.textContent = '';
+  const data = {};
+  for (const k of ['title', 'type', 'rentPeriod', 'city', 'district', 'street', 'price', 'oldPrice', 'priceNote', 'area', 'bedrooms', 'bathrooms', 'livingRooms', 'floors', 'streetWidth', 'facing', 'age', 'features', 'summary', 'mapUrl', 'date'])
+    data[k] = F(k).value;
+  data.status = f.elements.status.value;
+  data.available = F('available').checked;
+  data.featured = F('featured').checked;
+  data.images = photos; data.cover = cover;
+  const missing = [];
+  if (!data.title.trim()) missing.push('العنوان'); if (!data.type) missing.push('نوع العقار');
+  if (!data.city) missing.push('المدينة'); if (!data.district) missing.push('الحي'); if (!data.summary.trim()) missing.push('الوصف المختصر');
+  if (missing.length) { msg.textContent = 'أكمل: ' + missing.join('، '); return; }
+  const btn = $('#saveBtn'); btn.disabled = true; btn.textContent = 'جاري الحفظ…';
+  try {
+    await api('listings', { method: 'POST', body: { file: editing?.file, data, body: F('body').value } });
+    toast('تم الحفظ، وجاري تحديث الموقع');
+    await loadItems(); closeEditor(); pollBuild();
+  } catch (err) { msg.textContent = err.message; }
+  btn.disabled = false; btn.textContent = 'حفظ ونشر';
+});
+
+/* build status */
+let pollT;
+async function pollBuild() {
+  clearTimeout(pollT);
+  try {
+    const s = await api('status');
+    const pill = $('#buildPill');
+    pill.classList.toggle('is-building', s.state === 'building');
+    pill.classList.toggle('is-error', s.state === 'error');
+    pill.querySelector('span').textContent = s.state === 'building' ? 'جاري تحديث الموقع…' : s.state === 'error' ? 'تعذّر تحديث الموقع' : 'الموقع محدّث';
+    pill.title = s.state === 'error' ? s.error : '';
+    if (s.state === 'error' && pollBuild.last !== 'error') toast('تعذّر تحديث الموقع. راجع آخر تعديل.', true);
+    if (s.state === 'ok' && pollBuild.last === 'building') toast('تم تحديث الموقع ✓');
+    pollBuild.last = s.state;
+    if (s.state === 'building') pollT = setTimeout(pollBuild, 1500);
+  } catch {}
+}
+
+/* boot */
+async function loadItems() { ITEMS = (await api('listings')).items; renderList(); }
+async function boot() {
+  META = await api('meta');
+  F('type').innerHTML = '<option value="">اختر النوع</option>' + META.types.map((t) => `<option value="${esc(t.key)}">${esc(t.name)}</option>`).join('');
+  F('city').innerHTML = '<option value="">اختر المدينة</option>' + META.cities.map((c) => `<option value="${esc(c.slug)}">${esc(c.name)}</option>`).join('');
+  await loadItems();
+  show('app'); pollBuild();
+}
+api('session').then(boot).catch(() => show('login'));
+</script>
+</body>
+</html>

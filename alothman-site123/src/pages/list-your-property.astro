@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Icon from '../components/Icon.astro';
+const steps = [
+  ['أرسل تفاصيل عقارك', 'النوع، الموقع، المساحة، وما تريده: بيع أو تأجير أو إدارة.'],
+  ['التقييم والتسعير', 'نقيّم العقار بناءً على السوق والموقع والعرض والطلب.'],
+  ['التسويق الاحترافي', 'تصوير ونشر وعرض العقار على المهتمين والتفاوض نيابة عنك.'],
+  ['إتمام الصفقة', 'إعداد العقود وإنهاء الإجراءات النظامية ونقل الملكية.'],
+];
+---
+<Base title="اعرض عقارك للبيع أو الإيجار في الخبر والدمام | العثمان العقارية" description="تملك عقارًا في الخبر أو الدمام؟ اعرضه مع العثمان العقارية: تقييم، تسويق احترافي، تفاوض، وإنهاء الإجراءات، أو إدارة وتأجير كاملة لعقارك.">
+  <PageHero eyebrow="لملاك العقارات" title="اعرض عقارك معنا، ونتولى الباقي" lead="بيع أو تأجير أو إدارة أملاك، في الخبر والدمام والمنطقة الشرقية." crumbs={[{ name: 'اعرض عقارك' }]} />
+  <section class="wrap own">
+    <ol class="steps" role="list">
+      {steps.map(([t, p], i) => <li data-reveal style={`--d:${i * .08}s`}><span class="latin">0{i + 1}</span><div><h2>{t}</h2><p>{p}</p></div></li>)}
+    </ol>
+    <LeadForm title="بيانات عقارك" intent="بيع عقاري" id="own" />
+  </section>
+</Base>
+<style>
+  .own { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 5vw, 80px); padding-bottom: clamp(80px, 10vw, 140px); align-items: start; }
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+  .steps li { display: grid; grid-template-columns: 70px 1fr; gap: 16px; padding: 26px 0; border-bottom: 1px solid var(--line-dark); }
+  .steps .latin { font-size: 34px; color: var(--gold); line-height: 1.2; }
+  .steps h2 { font-size: 22px; margin-bottom: 6px; }
+  .steps p { color: var(--on-dark-soft); margin: 0; }
+  @media (max-width: 900px) { .own { grid-template-columns: 1fr; } }
+</style>

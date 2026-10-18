@@ -1,0 +1,45 @@
+---
+import Icon from './Icon.astro';
+import { SITE, waLink } from '../lib/data';
+const { solid = false } = Astro.props;
+const path = Astro.url.pathname;
+const links = [
+  { href: '/', label: 'الرئيسية', en: 'Home' },
+  { href: '/properties/', label: 'العقارات', en: 'Listings' },
+  { href: '/khobar/', label: 'الخبر', en: 'Khobar' },
+  { href: '/dammam/', label: 'الدمام', en: 'Dammam' },
+  { href: '/services/', label: 'خدماتنا', en: 'Services' },
+  { href: '/about/', label: 'من نحن', en: 'About' },
+  { href: '/contact/', label: 'تواصل معنا', en: 'Contact' },
+];
+const cur = (h: string) => (h === '/' ? path === '/' : path.startsWith(h)) ? 'page' : undefined;
+---
+<header class:list={['hdr', { 'is-solid': solid }]} data-solid={solid ? '1' : undefined}>
+  <div class="wrap hdr__in">
+    <a href="/" class="brand">
+      <img src="/brand/logo-mark.png" alt="شعار العثمان العقارية" width="46" height="46" />
+      <span class="brand__txt"><span class="brand__ar">{SITE.nameAr}</span><span class="brand__en">Al Othman</span></span>
+    </a>
+    <nav class="nav" aria-label="القائمة الرئيسية">
+      {links.map((l) => <a href={l.href} aria-current={cur(l.href)}>{l.label}</a>)}
+    </nav>
+    <div class="hdr__cta">
+      <a class="btn btn--ghost btn--sm" href={`tel:${SITE.phone}`} data-magnetic><Icon name="phone" size={18} /><span dir="ltr">{SITE.phoneDisplay}</span></a>
+      <a class="btn btn--wa btn--sm" href={waLink('السلام عليكم، أرغب بالاستفسار عن عقار')} target="_blank" rel="noopener" data-magnetic><Icon name="whatsapp" size={18} />واتساب</a>
+      <button class="burger" type="button" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mmenu" data-menu-open><Icon name="menu" size={22} /></button>
+    </div>
+  </div>
+</header>
+<div class="mmenu" id="mmenu" role="dialog" aria-modal="true" aria-label="القائمة">
+  <div class="mmenu__top">
+    <a href="/" class="brand"><img src="/brand/logo-mark.png" alt="" width="40" height="40" /><span class="brand__txt"><span class="brand__ar">{SITE.nameAr}</span></span></a>
+    <button class="burger" style="display:inline-flex" type="button" aria-label="إغلاق القائمة" data-menu-close><Icon name="close" size={22} /></button>
+  </div>
+  <nav aria-label="قائمة الجوال">
+    {links.map((l) => <a href={l.href}>{l.label}<span>{l.en}</span></a>)}
+  </nav>
+  <div class="mmenu__foot">
+    <a class="btn btn--wa" href={waLink('السلام عليكم، أرغب بالاستفسار عن عقار')} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} />واتساب</a>
+    <a class="btn" href={`tel:${SITE.phone}`}><Icon name="phone" size={18} />اتصال</a>
+  </div>
+</div>

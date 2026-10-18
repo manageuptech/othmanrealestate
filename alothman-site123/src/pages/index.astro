@@ -1,0 +1,333 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import TypeArt from '../components/TypeArt.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import SearchPanel from '../components/SearchPanel.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { SITE, TYPES, PRIMARY_CITIES, getProperties, districtUrl, isNoindex, waLink } from '../lib/data';
+
+const props = await getProperties();
+const featured = [...props.filter((p) => p.data.featured), ...props.filter((p) => !p.data.featured)].slice(0, 6);
+const countType = (k: string) => props.filter((p) => p.data.type === k).length;
+const countCity = (c: string) => props.filter((p) => p.data.city === c).length;
+const marquee = PRIMARY_CITIES.flatMap((c) => c.districts.slice(0, 8).map((d) => ({ name: d.name.replace(/\s*\(.*\)/, ''), city: c.name })));
+const cityBg: Record<string, string> = { khobar: 'https://alothman.com.sa/wp-content/uploads/2026/02/Al-Khobar-1.jpg' };
+
+const title = 'العثمان العقارية | شقق وفلل وأراضٍ للبيع والإيجار في الخبر والدمام';
+const description = 'العثمان العقارية في الدمام والخبر: شقق وفلل وأراضٍ وعمائر وعقارات تجارية للبيع والإيجار، وإدارة أملاك وتسويق وتقييم عقاري. تواصل مع المبيعات: ' + SITE.phoneDisplay;
+const ld = [{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.nameAr, alternateName: SITE.nameEn, url: 'https://alothman.com.sa/', inLanguage: 'ar-SA', potentialAction: { '@type': 'SearchAction', target: 'https://alothman.com.sa/properties/?q={search_term_string}', 'query-input': 'required name=search_term_string' } }];
+---
+<Base title={title} description={description} jsonld={ld} preload>
+  <!-- Preloader -->
+  <div class="pre" aria-hidden="true">
+    <div class="pre__panel"></div><div class="pre__panel"></div><div class="pre__panel"></div>
+    <div class="pre__center">
+      <svg class="pre__ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" pathLength="1" /></svg>
+      <img src="/brand/logo-mark.png" alt="" width="92" height="92" />
+    </div>
+    <div class="pre__count"><span>0</span>%</div>
+    <div class="pre__name">العثمان العقارية <span class="latin">Al Othman Real Estate</span></div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" aria-label="الواجهة الرئيسية">
+    <div class="hero__stage">
+      <canvas class="hero__canvas" aria-hidden="true"></canvas>
+      {SITE.heroVideo && (
+        <video class="hero__video" muted loop playsinline preload="metadata" poster={SITE.heroPoster || undefined} data-src={SITE.heroVideo} aria-hidden="true"></video>
+      )}
+      <div class="hero__shade"></div>
+    </div>
+    <div class="wrap hero__content">
+      <span class="eyebrow hero__eyebrow">الخبر · الدمام · المنطقة الشرقية</span>
+      <h1 class="h-display hero__title">
+        <span class="hero__line">عقارات تليق</span>
+        <span class="hero__line"><span class="gold-grad">بطموحك</span></span>
+      </h1>
+      <p class="hero__sub">شقق وفلل وأراضٍ وعمائر وعقارات تجارية للبيع والإيجار في الخبر والدمام، مع فريق يرافقك من أول معاينة حتى توقيع العقد.</p>
+      <SearchPanel />
+    </div>
+    <div class="hero__aside" aria-hidden="true">
+      <span class="latin">Al Othman Real Estate</span>
+      <span class="hero__scroll"><i></i></span>
+    </div>
+    {SITE.heroVideo && (
+      <div class="hero__vctl">
+        <button type="button" data-vplay aria-label="إيقاف الفيديو مؤقتًا"><Icon name="pause" size={16} /></button>
+      </div>
+    )}
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="mq" aria-hidden="true">
+    <div class="marquee" style="--dur:60s">
+      {[0, 1].map(() => (
+        <div class="marquee__track">
+          {marquee.map((m) => <span class="mq__item">{m.name}<em>{m.city}</em><i>✦</i></span>)}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- ABOUT / STATEMENT -->
+  <section class="section section--ivory about" id="about">
+    <div class="wrap about__grid">
+      <div class="about__side">
+        <span class="eyebrow">مسيرة حافلة وطموح مستمر</span>
+        <div class="stat">
+          <span class="stat__num"><span data-count={SITE.stats[0].value}>{SITE.stats[0].value}</span><b>{SITE.stats[0].suffix}</b></span>
+          <span class="stat__lbl">{SITE.stats[0].label}</span>
+        </div>
+        <a class="link-arrow" href="/about/">تعرّف على العثمان العقارية <Icon name="arrow" /></a>
+      </div>
+      <p class="about__text" data-words>{SITE.about}</p>
+    </div>
+    <ul class="wrap values" role="list">
+      {SITE.values.map((v, i) => (
+        <li data-reveal style={`--d:${i * 0.08}s`}><span class="values__ic"><Icon name={v.icon} size={28} /></span>{v.title}</li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- TYPES (horizontal pinned scroll) -->
+  <section class="types" id="types" aria-labelledby="types-h">
+    <div class="types__pin">
+      <div class="wrap types__head">
+        <span class="eyebrow">أنواع العقارات</span>
+        <h2 class="h-xl" id="types-h" data-split>اختر نوع عقارك</h2>
+        <div class="types__progress" aria-hidden="true"><i></i></div>
+      </div>
+      <div class="types__track">
+        {TYPES.map((t, i) => (
+          <a class="tpanel" href={`/properties/?type=${t.key}`} data-cursor="تصفّح">
+            <span class="tpanel__no latin">0{i + 1}</span>
+            <TypeArt type={t.key} class="tpanel__art" />
+            <span class="tpanel__body">
+              <span class="tpanel__name">{t.plural}</span>
+              <span class="tpanel__desc">{t.desc}</span>
+              <span class="tpanel__meta">{countType(t.key) > 0 ? `${countType(t.key)} ${countType(t.key) === 1 ? 'عرض متاح' : 'عروض متاحة'}` : 'اطلب ما يناسبك'}<Icon name="arrowUpLeft" size={18} /></span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED LISTINGS -->
+  <section class="section section--ivory2" id="listings" aria-labelledby="listings-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow">العروض العقارية</span>
+          <h2 class="h-xl" id="listings-h" data-split>عقارات مختارة لك</h2>
+        </div>
+        <a class="btn btn--navy" href="/properties/" data-magnetic>جميع العقارات <Icon name="arrow" size={18} /></a>
+      </div>
+      <div class="pgrid">
+        {featured.map((p, i) => <PropertyCard p={p} delay={(i % 3) * 0.1} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- CITIES -->
+  <section class="section cities" id="cities" aria-labelledby="cities-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow">مدننا</span>
+          <h2 class="h-xl" id="cities-h" data-split>الخبر والدمام، حيًّا حيًّا</h2>
+        </div>
+        <p class="lead">نعرف أحياء المدينتين جيدًا، ونعرض لك ما يناسبك فيها للبيع والإيجار.</p>
+      </div>
+      <div class="cities__row">
+        {PRIMARY_CITIES.map((c, i) => (
+          <article class="city" data-reveal="clip" style={`--d:${i * 0.15}s`}>
+            {cityBg[c.slug] && <img class="city__bg" data-photo src={cityBg[c.slug]} alt="" loading="lazy" />}
+            <div class="city__glow"></div>
+            <div class="city__in">
+              <span class="city__en latin">{c.nameEn}</span>
+              <h3 class="city__name">{c.name}</h3>
+              <p class="city__intro">{c.intro}</p>
+              <ul class="city__districts" role="list">
+                {c.districts.filter((d) => !isNoindex(districtUrl(c.slug, d.slug))).map((d) => <li><a href={districtUrl(c.slug, d.slug)}>{d.name.replace(/\s*\(.*\)/, '')}</a></li>)}
+              </ul>
+              <a class="btn" href={`/${c.slug}/`}>عقارات {c.name}{countCity(c.slug) > 0 && <span class="city__count">{countCity(c.slug)}</span>}<Icon name="arrow" size={18} /></a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section section--deep services" id="services" aria-labelledby="services-h">
+    <div class="wrap services__grid">
+      <div class="services__head">
+        <span class="eyebrow">خدماتنا</span>
+        <h2 class="h-xl" id="services-h" data-split>تعرّف على أبرز خدماتنا العقارية</h2>
+        <p class="lead">سواء كنت تبحث عن بيت لعائلتك، أو تملك عقارًا وتريد تسويقه أو إدارته، فريقنا يتولى التفاصيل كلها.</p>
+        <a class="btn btn--ghost" href="/services/" data-magnetic>كل الخدمات <Icon name="arrow" size={18} /></a>
+      </div>
+      <ol class="srv" role="list">
+        {SITE.services.map((s, i) => (
+          <li class="srv__item" data-reveal style={`--d:${(i % 3) * 0.06}s`}>
+            <span class="srv__no latin">0{i + 1}</span>
+            <div><h3 class="srv__t">{s.title}</h3><p class="srv__p">{s.text}</p></div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- CTA + LEAD -->
+  <section class="section section--ivory cta" id="contact" aria-labelledby="cta-h">
+    <div class="wrap cta__grid">
+      <div>
+        <span class="eyebrow">العثمان العقارية</span>
+        <h2 class="h-xl" id="cta-h" data-split>أخبرنا عن العقار الذي تبحث عنه</h2>
+        <p class="lead">سواء كنت ترغب في شراء، بيع، أو استئجار عقار، فريقنا جاهز لمساعدتك في كل خطوة. تواصل معنا الآن للحصول على أفضل العروض العقارية.</p>
+        <div class="cta__direct">
+          <a class="btn btn--wa" href={waLink('السلام عليكم، أرغب بالاستفسار عن عقار')} target="_blank" rel="noopener" data-magnetic><Icon name="whatsapp" size={20} />واتساب</a>
+          <a class="btn btn--navy" href={`tel:${SITE.phone}`} data-magnetic><Icon name="phone" size={18} /><span dir="ltr">{SITE.phoneDisplay}</span></a>
+        </div>
+        <div class="office">
+          <Icon name="pin" size={22} />
+          <div><strong>مكتب الاستشارات العقارية</strong><br />{SITE.address.line}، {SITE.address.city}</div>
+          <a class="link-arrow" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(SITE.address.mapsQuery)}`} target="_blank" rel="noopener">التوجه للموقع <Icon name="arrowUpLeft" size={16} /></a>
+        </div>
+      </div>
+      <LeadForm />
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* preloader */
+  .pre { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; pointer-events: none; }
+  html:not(.js) .pre, .pre.is-skip { display: none; }
+  .pre__panel { position: absolute; top: 0; bottom: 0; width: 33.4%; background: var(--navy-950); }
+  .pre__panel:nth-child(1) { right: 0; } .pre__panel:nth-child(2) { right: 33.3%; } .pre__panel:nth-child(3) { left: 0; }
+  .pre__center { position: relative; width: 150px; height: 150px; display: grid; place-items: center; }
+  .pre__center img { width: 84px; height: 84px; }
+  .pre__ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .pre__ring circle { fill: none; stroke: var(--gold); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .pre__count { position: absolute; bottom: 7vh; left: var(--gutter); font-family: var(--f-latin); font-size: clamp(48px, 8vw, 110px); color: var(--gold); line-height: 1; }
+  .pre__name { position: absolute; bottom: 8vh; right: var(--gutter); font-family: var(--f-display); font-size: 16px; display: grid; gap: 4px; color: var(--on-dark-soft); }
+  .pre__name .latin { color: var(--gold); letter-spacing: .2em; font-size: 13px; text-transform: uppercase; }
+
+  /* hero */
+  .hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; }
+  .hero__stage { position: absolute; inset: 0; overflow: hidden; background: var(--navy-950); will-change: clip-path; }
+  .hero__canvas, .hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero__video { opacity: 0; transition: opacity 1.6s var(--ease); }
+  .hero__video.is-ready { opacity: 1; }
+  .hero__shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7, 13, 24, .55) 0%, rgba(7, 13, 24, .15) 35%, rgba(7, 13, 24, .55) 70%, rgba(7, 13, 24, .92) 100%), radial-gradient(70% 60% at 85% 40%, rgba(7, 13, 24, .5), transparent 70%); }
+  .hero__content { position: relative; z-index: 2; padding-top: calc(var(--header-h) + 8vh); padding-bottom: clamp(28px, 5vh, 56px); }
+  .hero__title { margin: 22px 0 22px; text-shadow: 0 10px 40px rgba(0, 0, 0, .35); }
+  .hero__line { display: block; overflow: hidden; padding-bottom: .1em; }
+  .hero__line > span { display: inline-block; }
+  .hero__sub { font-size: clamp(16px, 1.4vw, 20px); color: var(--on-dark-soft); max-width: 52ch; margin-bottom: clamp(26px, 4vh, 44px); }
+  .hero__aside { position: absolute; z-index: 2; left: var(--gutter); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .hero__aside .latin { writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .3em; text-transform: uppercase; font-size: 13px; color: var(--on-dark-mute); font-style: normal; }
+  .hero__scroll { width: 1px; height: 90px; background: var(--line-dark); position: relative; overflow: hidden; }
+  .hero__scroll i { position: absolute; inset: 0; background: var(--gold); animation: drip 2.2s var(--ease-io) infinite; }
+  @keyframes drip { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
+  .hero__vctl { position: absolute; z-index: 3; left: var(--gutter); bottom: 28px; }
+  .hero__vctl button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-dark); display: grid; place-items: center; background: rgba(7, 13, 24, .4); backdrop-filter: blur(8px); }
+  @media (max-width: 760px) { .hero__aside, .hero__vctl { display: none; } .hero__content { padding-top: calc(var(--header-h) + 10vh); padding-bottom: 96px; } .hero__sub { font-size: 15px; } .hero__title { margin: 14px 0; } }
+
+  /* marquee */
+  .mq { background: var(--gold); color: var(--navy); padding: 18px 0; }
+  .mq__item { display: inline-flex; align-items: baseline; gap: 10px; padding-inline: 22px; font-family: var(--f-display); font-size: clamp(20px, 2.4vw, 32px); font-weight: 500; white-space: nowrap; }
+  .mq__item em { font-style: normal; font-size: .5em; font-family: var(--f-body); opacity: .65; }
+  .mq__item i { font-style: normal; font-size: .5em; margin-inline-start: 22px; }
+
+  /* about */
+  .about__grid { display: grid; grid-template-columns: 1fr 2.2fr; gap: clamp(32px, 6vw, 100px); align-items: start; }
+  .about__side { display: grid; gap: 28px; position: sticky; top: calc(var(--header-h) + 30px); }
+  .stat__num { display: flex; align-items: baseline; font-family: var(--f-latin); font-size: clamp(80px, 11vw, 160px); line-height: .9; color: var(--navy); }
+  .stat__num b { color: var(--gold); font-weight: 500; }
+  .stat__lbl { display: block; font-family: var(--f-display); font-size: 20px; margin-top: 8px; }
+  .about__text { font-family: var(--f-display); font-weight: 300; font-size: clamp(22px, 2.5vw, 36px); line-height: 1.75; margin: 0; }
+  .about__text .w { opacity: .14; transition: opacity .2s linear; }
+  .values { list-style: none; margin: clamp(60px, 8vw, 110px) auto 0; padding-top: 40px; border-top: 1px solid var(--line-light); display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+  .values li { display: flex; flex-direction: column; gap: 14px; font-weight: 500; }
+  .values__ic { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(195, 148, 45, .5); color: var(--gold-3); }
+  @media (max-width: 900px) { .about__grid { grid-template-columns: 1fr; } .about__side { position: static; } .values { grid-template-columns: repeat(2, 1fr); } }
+
+  /* types */
+  .types { background: var(--navy); position: relative; }
+  .types__pin { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding-block: calc(var(--header-h) + 40px) 40px; overflow: hidden; }
+  .types__head { display: grid; gap: 12px; margin-bottom: clamp(24px, 4vh, 48px); }
+  .types__progress { height: 1px; background: var(--line-dark); margin-top: 10px; max-width: 320px; }
+  .types__progress i { display: block; height: 100%; background: var(--gold); transform: scaleX(0); transform-origin: right; }
+  .types__track { display: flex; gap: clamp(16px, 2vw, 28px); padding-inline: var(--gutter); width: max-content; }
+  .tpanel { position: relative; flex: none; width: min(78vw, 460px); height: min(58vh, 540px); border-radius: var(--radius); border: 1px solid var(--line-dark); background: linear-gradient(160deg, var(--navy-700), var(--navy-900)); display: flex; flex-direction: column; justify-content: space-between; padding: 28px; overflow: hidden; transition: border-color .5s, transform .6s var(--ease); }
+  .tpanel::before { content: ''; position: absolute; inset: 0; background: radial-gradient(80% 60% at 70% 20%, rgba(195, 148, 45, .22), transparent 70%); opacity: 0; transition: opacity .6s; }
+  .tpanel:hover { border-color: rgba(195, 148, 45, .6); }
+  .tpanel:hover::before { opacity: 1; }
+  .tpanel__no { font-size: 22px; color: var(--gold); }
+  :global(.tpanel__art) { position: absolute; top: 9%; left: 50%; width: 60%; transform: translateX(-50%); color: var(--gold); opacity: .9; }
+  :global(.tpanel__art path) { stroke-dasharray: 1; stroke-dashoffset: var(--draw, 0); }
+  .tpanel__body { position: relative; display: grid; gap: 8px; }
+  .tpanel__name { font-family: var(--f-display); font-size: clamp(30px, 3.2vw, 44px); font-weight: 300; }
+  .tpanel__desc { font-size: 15px; color: var(--on-dark-soft); max-width: 36ch; }
+  .tpanel__meta { display: inline-flex; align-items: center; gap: 8px; color: var(--gold); font-weight: 500; margin-top: 6px; }
+  @media (max-width: 760px) {
+    .types__pin { min-height: 0; padding-block: 90px 70px; }
+    .types__track { width: auto; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; scrollbar-width: none; }
+    .types__track::-webkit-scrollbar { display: none; }
+    .tpanel { scroll-snap-align: center; height: 440px; }
+    .types__progress { display: none; }
+  }
+
+  /* section head */
+  .sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: clamp(36px, 5vw, 64px); }
+  .sec-head h2 { margin-top: 12px; }
+  .sec-head .lead { max-width: 42ch; }
+
+  /* cities */
+  .cities__row { display: flex; gap: 20px; height: clamp(560px, 78vh, 760px); }
+  .city { position: relative; flex: 1; border-radius: var(--radius); overflow: hidden; background: linear-gradient(200deg, var(--navy-600), var(--navy-900) 70%); transition: flex 1s var(--ease); isolation: isolate; }
+  .cities__row:hover .city { flex: .75; }
+  .cities__row .city:hover { flex: 1.4; }
+  .city__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .45; transition: transform 1.6s var(--ease), opacity .8s; }
+  .city:hover .city__bg { transform: scale(1.06); opacity: .6; }
+  .city__glow { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 13, 24, .95) 10%, rgba(7, 13, 24, .2) 70%), radial-gradient(60% 50% at 80% 10%, rgba(195, 148, 45, .25), transparent 70%); }
+  .city__in { position: absolute; inset: auto 0 0; padding: clamp(24px, 3vw, 44px); display: grid; gap: 14px; justify-items: start; }
+  .city__en { color: var(--gold); font-size: 22px; }
+  .city__name { font-size: clamp(56px, 8vw, 120px); font-weight: 300; line-height: 1; }
+  .city__intro { color: var(--on-dark-soft); font-size: 15.5px; max-width: 52ch; margin: 0; }
+  .city__districts { list-style: none; padding: 0; margin: 4px 0 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .city__districts a { display: inline-flex; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(255, 246, 229, .25); font-size: 14px; background: rgba(7, 13, 24, .35); backdrop-filter: blur(6px); transition: background .3s, color .3s, border-color .3s; }
+  .city__districts a:hover { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+  .city__count { display: inline-grid; place-items: center; min-width: 26px; height: 26px; border-radius: 13px; background: var(--navy); color: var(--gold); font-size: 13px; padding: 0 6px; }
+  @media (max-width: 860px) { .cities__row { flex-direction: column; height: auto; } .city { min-height: 520px; } .cities__row:hover .city, .cities__row .city:hover { flex: 1; } }
+
+  /* services */
+  .services__grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: clamp(40px, 6vw, 110px); align-items: start; }
+  .services__head { position: sticky; top: calc(var(--header-h) + 30px); display: grid; gap: 22px; justify-items: start; }
+  .srv { list-style: none; margin: 0; padding: 0; }
+  .srv__item { display: grid; grid-template-columns: 70px 1fr; gap: 20px; padding: 30px 0; border-bottom: 1px solid var(--line-dark); transition: padding .5s var(--ease); }
+  .srv__item:first-child { border-top: 1px solid var(--line-dark); }
+  .srv__item:hover { padding-inline-start: 14px; }
+  .srv__no { font-size: 30px; color: var(--gold); line-height: 1.2; }
+  .srv__t { font-size: clamp(20px, 1.8vw, 26px); font-weight: 500; margin-bottom: 8px; transition: color .3s; }
+  .srv__item:hover .srv__t { color: var(--gold-2); }
+  .srv__p { color: var(--on-dark-soft); margin: 0; font-size: 16px; }
+  @media (max-width: 900px) { .services__grid { grid-template-columns: 1fr; } .services__head { position: static; } .srv__item { grid-template-columns: 50px 1fr; } }
+
+  /* cta */
+  .cta__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 100px); align-items: start; }
+  .cta h2 { margin: 14px 0 18px; }
+  .cta__direct { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0 36px; }
+  .office { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; padding: 22px; border-radius: var(--radius-sm); border: 1px solid var(--line-light); background: #fff; color: var(--ink); }
+  .office .icon { color: var(--gold); margin-top: 4px; }
+  .office .link-arrow { grid-column: 2; color: var(--gold-3); }
+  @media (max-width: 900px) { .cta__grid { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import '../scripts/home';
+</script>

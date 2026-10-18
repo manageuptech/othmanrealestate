@@ -1,0 +1,40 @@
+---
+import { SITE } from '../lib/data';
+interface Props { title: string; description: string; image?: string; noindex?: boolean; type?: string; jsonld?: any[] }
+const { title, description, image = '/brand/og.jpg', noindex = false, type = 'website', jsonld = [] } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const img = image.startsWith('http') ? image : new URL(image, Astro.site).href;
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  '@id': 'https://alothman.com.sa/#org',
+  name: SITE.nameAr,
+  alternateName: [SITE.nameEn, SITE.legalNameAr],
+  url: 'https://alothman.com.sa/',
+  logo: new URL('/brand/logo-mark.png', Astro.site).href,
+  image: img,
+  telephone: SITE.phone,
+  ...(SITE.email ? { email: SITE.email } : {}),
+  address: { '@type': 'PostalAddress', streetAddress: SITE.address.line, addressLocality: SITE.address.city, addressRegion: SITE.address.region, addressCountry: SITE.address.country },
+  areaServed: [{ '@type': 'City', name: 'الخبر' }, { '@type': 'City', name: 'الدمام' }, { '@type': 'AdministrativeArea', name: 'المنطقة الشرقية' }],
+  ...(Object.values(SITE.social).some(Boolean) ? { sameAs: Object.values(SITE.social).filter(Boolean) } : {}),
+};
+const all = [org, ...jsonld];
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+<meta property="og:type" content={type} />
+<meta property="og:locale" content="ar_SA" />
+<meta property="og:site_name" content={`${SITE.nameAr} | ${SITE.nameEn}`} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={img} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={img} />
+<meta name="geo.region" content="SA-04" />
+{all.map((j) => <script type="application/ld+json" set:html={JSON.stringify(j)} />)}

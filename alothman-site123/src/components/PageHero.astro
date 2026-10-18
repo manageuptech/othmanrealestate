@@ -1,0 +1,15 @@
+---
+import Crumbs from './Crumbs.astro';
+interface Props { eyebrow?: string; title: string; lead?: string; crumbs: { name: string; href?: string }[] }
+const { eyebrow, title, lead, crumbs } = Astro.props;
+---
+<section class="phero">
+  <div class="phero__grid" aria-hidden="true"></div>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    {eyebrow && <span class="eyebrow" style="margin-top:28px">{eyebrow}</span>}
+    <h1 class="h-xl rise">{title}</h1>
+    {lead && <p class="lead rise" style="--d:.15s">{lead}</p>}
+    <slot />
+  </div>
+</section>

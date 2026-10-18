@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import Icon from '../../components/Icon.astro';
+import { SITE, waLink } from '../../lib/data';
+const icons = ['key', 'doc', 'megaphone', 'scale', 'chart', 'area'];
+const intents = ['إدارة أملاك', 'تأجير عقاري', 'بيع عقاري', 'استشارة', 'استشارة', 'تقييم عقار'];
+const ld = SITE.services.map((s) => ({ '@context': 'https://schema.org', '@type': 'Service', name: s.title, description: s.text, provider: { '@id': 'https://alothman.com.sa/#org' }, areaServed: ['الخبر', 'الدمام', 'المنطقة الشرقية'] }));
+---
+<Base title="خدمات عقارية في الدمام والخبر | إدارة أملاك وتسويق وتقييم - العثمان العقارية" description="خدمات العثمان العقارية في الدمام والخبر: إدارة الأملاك، تأجير العقارات وإدارة المستأجرين، تسويق وبيع العقارات، إنهاء الإجراءات، الاستشارات العقارية، وتقييم العقارات." jsonld={ld}>
+  <PageHero eyebrow="خدماتنا" title="خدمات عقارية متكاملة من أول خطوة حتى آخرها" lead="سواء كنت تشتري أو تبيع أو تؤجر أو تستثمر، نتولى التفاصيل كلها في الخبر والدمام والمنطقة الشرقية." crumbs={[{ name: 'خدماتنا' }]} />
+  <section class="wrap svc" aria-label="الخدمات">
+    {SITE.services.map((s, i) => (
+      <article class="svc__it" id={`s${i + 1}`} data-reveal style={`--d:${(i % 2) * .08}s`}>
+        <span class="svc__no latin">0{i + 1}</span>
+        <span class="svc__ic"><Icon name={icons[i]} size={30} /></span>
+        <h2 class="svc__t">{s.title}</h2>
+        <p class="svc__p">{s.text}</p>
+        <a class="link-arrow" href={waLink(`السلام عليكم، أرغب بالاستفسار عن خدمة: ${s.title}`)} target="_blank" rel="noopener">اطلب الخدمة <Icon name="arrow" size={18} /></a>
+      </article>
+    ))}
+  </section>
+  <section class="section section--ivory" style="margin-top:clamp(60px,8vw,110px)">
+    <div class="wrap two">
+      <div>
+        <span class="eyebrow">لملاك العقارات</span>
+        <h2 class="h-xl" data-split style="margin:14px 0 18px">اعرض عقارك أو سلّمنا إدارته</h2>
+        <p class="lead">نسوّق عقارك باحترافية، أو نديره ونؤجره نيابة عنك مع تقارير دورية، ونحافظ على قيمته.</p>
+        <a class="btn btn--navy" href="/list-your-property/" style="margin-top:20px">اعرض عقارك معنا <Icon name="arrow" size={18} /></a>
+      </div>
+      <LeadForm title="اطلب خدمة" intent="إدارة أملاك" id="svc" />
+    </div>
+  </section>
+</Base>
+<style>
+  .svc { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .svc__it { position: relative; display: grid; gap: 14px; justify-items: start; padding: clamp(28px, 3vw, 44px); border-radius: var(--radius); background: var(--navy-800); border: 1px solid var(--line-dark); overflow: hidden; transition: border-color .5s, transform .6s var(--ease); }
+  .svc__it:hover { border-color: rgba(195, 148, 45, .5); transform: translateY(-4px); }
+  .svc__no { position: absolute; top: 20px; left: 26px; font-size: 64px; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(195, 148, 45, .4); }
+  .svc__ic { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(195, 148, 45, .12); color: var(--gold); }
+  .svc__t { font-size: 26px; font-weight: 500; }
+  .svc__p { color: var(--on-dark-soft); margin: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 100px); align-items: start; }
+  @media (max-width: 860px) { .svc, .two { grid-template-columns: 1fr; } }
+</style>

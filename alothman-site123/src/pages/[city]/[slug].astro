@@ -1,0 +1,94 @@
+---
+// Two kinds of local landing pages share this route:
+//   /khobar/al-hamra/            → district page
+//   /khobar/apartments-for-sale/ → type + status page (primary cities only)
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Explorer from '../../components/Explorer.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { CITIES, TYPES, STATUS, SITE, getProperties, districtUrl, cityTypeUrl, isNoindex, waLink } from '../../lib/data';
+import { dname, dshort } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const all = await getProperties();
+  const out: any[] = [];
+  for (const c of CITIES) {
+    const inCity = all.filter((p) => p.data.city === c.slug);
+    for (const d of c.districts) out.push({ params: { city: c.slug, slug: d.slug }, props: { kind: 'district', c, d, items: inCity.filter((p) => p.data.district === d.slug) } });
+    if (c.primary) for (const t of TYPES) for (const s of ['sale', 'rent'] as const)
+      out.push({ params: { city: c.slug, slug: `${t.slug}-for-${s}` }, props: { kind: 'type', c, t, s, items: inCity.filter((p) => p.data.type === t.key && p.data.status === s) } });
+  }
+  return out;
+}
+const { kind, c, d, t, s, items } = Astro.props as any;
+const path = Astro.url.pathname;
+const noindex = isNoindex(path);
+const others = c.districts.filter((x: any) => x.slug !== d?.slug && !isNoindex(districtUrl(c.slug, x.slug)));
+
+let h1 = '', title = '', desc = '', lead = '', crumbs: any[] = [{ name: `عقارات ${c.name}`, href: `/${c.slug}/` }], faqs: any[] = [];
+if (kind === 'district') {
+  const n = dname(dshort(d.name));
+  h1 = `عقارات للبيع والإيجار في ${n} ب${c.name}`;
+  title = `عقارات ${n} ${c.name} | شقق وفلل وأراضٍ للبيع والإيجار - العثمان العقارية`;
+  desc = d.intro ? d.intro.slice(0, 150).replace(/\s\S*$/, '') + '…' : `عروض العثمان العقارية في ${n} بمدينة ${c.name}: شقق وفلل وأراضٍ للبيع والإيجار. تواصل معنا على ${SITE.phoneDisplay}.`;
+  lead = d.intro || `عروض العثمان العقارية المتاحة في ${n} بمدينة ${c.name}. لا تجد ما تبحث عنه؟ أرسل لنا طلبك وسنبحث لك.`;
+  crumbs.push({ name: n });
+  if (d.featured) faqs = [
+    { q: `هل لديكم شقق أو فلل للبيع في ${n}؟`, a: items.length ? `نعم، لدينا حاليًا ${items.length === 1 ? 'عرض واحد' : items.length + ' عروض'} في ${n} تجدها في هذه الصفحة. وتتجدد العروض باستمرار، فأرسل لنا طلبك ليصلك الجديد أولًا.` : `العروض في ${n} تتجدد باستمرار. أرسل لنا طلبك (النوع، المساحة، الميزانية) عبر واتساب وسنرسل لك ما يتوفر لدينا.` },
+    { q: `هل يمكنني تأجير عقاري في ${n} عن طريقكم؟`, a: 'نعم، نتولى البحث عن مستأجرين مناسبين وإعداد العقود ومتابعة الدفعات، ويمكننا إدارة العقار بالكامل نيابة عنك.' },
+    { q: `كيف أعرف القيمة السوقية لعقاري في ${n}؟`, a: 'نقدم خدمة تقييم العقار بناءً على السوق والموقع والعرض والطلب. تواصل معنا بتفاصيل العقار لترتيب التقييم.' },
+  ];
+} else {
+  h1 = `${t.name} ${STATUS[s as 'sale']} في ${c.name}`;
+  title = `${h1} | العثمان العقارية`;
+  desc = `${h1}: ${t.desc} تصفح عروض العثمان العقارية في أحياء ${c.name} وتواصل مباشرة مع فريق المبيعات.`;
+  lead = `${t.desc} هذه عروضنا المتاحة الآن في ${c.name}، ويمكنك التصفية حسب الحي.`;
+  crumbs.push({ name: h1 });
+}
+const sibling = kind === 'type' ? TYPES.flatMap((tt: any) => (['sale', 'rent'] as const).map((ss) => ({ u: cityTypeUrl(c.slug, tt.slug, ss), n: `${tt.name} ${STATUS[ss]}` }))).filter((x: any) => x.u !== path && !isNoindex(x.u)) : [];
+---
+<Base title={title} description={desc} noindex={noindex}>
+  <PageHero eyebrow={kind === 'district' ? `${c.name} · ${c.nameEn}` : `عقارات ${c.name}`} title={h1} lead={lead} crumbs={crumbs}>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:30px" data-reveal>
+      <a class="btn btn--wa" href={waLink(`السلام عليكم، أبحث عن ${kind === 'district' ? 'عقار في ' + dname(dshort(d.name)) + ' ب' + c.name : h1}`)} target="_blank" rel="noopener"><Icon name="whatsapp" size={18} />اطلب عبر واتساب</a>
+      <a class="btn btn--ghost" href={`tel:${SITE.phone}`}><Icon name="phone" size={18} /><span dir="ltr">{SITE.phoneDisplay}</span></a>
+    </div>
+  </PageHero>
+
+  <section class="wrap" style="padding-bottom:clamp(60px,8vw,110px)">
+    <h2 class="sr-only">العروض المتاحة</h2>
+    <Explorer items={items} preset={kind === 'district' ? { city: c.slug, district: d.slug } : { city: c.slug, type: t.key, status: s }} showFilters={items.length > 3}
+      emptyText={kind === 'district' ? `لا توجد عروض منشورة حاليًا في ${dname(dshort(d.name))}.` : `لا توجد ${t.name} ${STATUS[s as 'sale']} في ${c.name} منشورة حاليًا.`} />
+  </section>
+
+  <section class="section section--ivory">
+    <div class="wrap">
+      {faqs.length > 0 && <div style="margin-bottom:clamp(70px,9vw,120px)"><Faq items={faqs} title={`أسئلة عن ${dname(dshort(d.name))}`} /></div>}
+      <div class="lgrid">
+        <div>
+          {kind === 'district' && others.length > 0 && (<>
+            <h2 class="h-md" style="margin-bottom:18px">أحياء أخرى في {c.name}</h2>
+            <ul class="chips" role="list">{others.map((x: any) => <li><a href={districtUrl(c.slug, x.slug)}>{dname(x.name)}</a></li>)}</ul>
+          </>)}
+          {kind === 'type' && (<>
+            <h2 class="h-md" style="margin-bottom:18px">تصفح حسب الحي في {c.name}</h2>
+            <ul class="chips" role="list">{c.districts.map((x: any) => <li><a href={`/properties/?city=${c.slug}&district=${x.slug}&type=${t.key}&status=${s}`}>{dname(x.name)}</a></li>)}</ul>
+            {sibling.length > 0 && (<><h2 class="h-md" style="margin:34px 0 18px">عروض أخرى في {c.name}</h2>
+            <ul class="chips" role="list">{sibling.map((x: any) => <li><a href={x.u}>{x.n}</a></li>)}</ul></>)}
+          </>)}
+          <p style="margin-top:34px"><a class="link-arrow" style="color:var(--gold-3)" href={`/${c.slug}/`}>كل عقارات {c.name} <Icon name="arrow" size={18} /></a></p>
+        </div>
+        <LeadForm title={kind === 'district' ? `تبحث عن عقار في ${dname(dshort(d.name))}؟` : `تبحث عن ${t.single} ${STATUS[s as 'sale']} في ${c.name}؟`} intent={s === 'rent' ? 'استئجار' : 'شراء'} id="lp" />
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .lgrid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 100px); align-items: start; }
+  .chips { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips a { display: inline-flex; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line-light); background: #fff; font-size: 15px; transition: background .3s, color .3s; }
+  .chips a:hover { background: var(--navy); color: var(--ivory); }
+  @media (max-width: 900px) { .lgrid { grid-template-columns: 1fr; } }
+</style>

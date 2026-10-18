@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+---
+<Base title="الصفحة غير موجودة | العثمان العقارية" description="الصفحة المطلوبة غير موجودة." noindex>
+  <section class="phero" style="min-height:90vh;display:grid;align-items:center">
+    <div class="phero__grid"></div>
+    <div class="wrap" style="text-align:center;display:grid;justify-items:center;gap:20px">
+      <span class="latin gold" style="font-size:clamp(120px,20vw,260px);line-height:1">404</span>
+      <h1 class="h-lg">هذه الصفحة غير موجودة</h1>
+      <p class="lead">ربما نُقل العقار أو تغيّر الرابط. تصفح العروض المتاحة أو تواصل معنا.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><a class="btn" href="/properties/">تصفح العقارات <Icon name="arrow" size={18} /></a><a class="btn btn--ghost" href="/">الرئيسية</a></div>
+    </div>
+  </section>
+</Base>
